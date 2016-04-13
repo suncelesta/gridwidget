@@ -1,0 +1,10 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:s="urn:import:com.autocomple.mosaic" xmlns:g="urn:import:com.google.gwt.user.client.ui">
+
+    <g:HTMLPanel width="90%" height="90%">
+        <g:Button ui:field="addPieceButton">Add Piece</g:Button>
+        <s:MosaicPanel ui:field="ragsContainer" width="100%" height="100%"/>
+
+    </g:HTMLPanel>
+
+</ui:UiBinder>
