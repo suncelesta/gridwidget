@@ -2,7 +2,7 @@ package com.autocomple.testrags;
 
 import com.autocomple.mosaic.Dimension;
 import com.autocomple.mosaic.MosaicPanel;
-import com.autocomple.mosaic.command.AddCommand;
+import com.autocomple.mosaic.command.PrependCommand;
 import com.autocomple.mosaic.command.UpdateCommand;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.core.client.GWT;
@@ -56,7 +56,7 @@ public class Rags extends Composite {
 
         ragpiece.addClickHandler((event) -> changePieceColor(ragpiece));
 
-        AddCommand.sendTo(ragsContainer, 0, ragpiece);
+        PrependCommand.sendTo(ragsContainer, ragpiece);
         UpdateCommand.sendTo(ragpiece, color);
 
         GWT.log("Added piece with height=" + height + ", width=" + width + ", color=" + color);

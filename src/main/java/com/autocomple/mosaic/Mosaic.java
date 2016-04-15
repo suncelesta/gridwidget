@@ -32,6 +32,22 @@ public class Mosaic {
         return new Position(row, column);
     }
 
+    public void removeTile(UnitMatrix tileMatrix, Position position) {
+        int maxTileRow = position.getTop() + tileMatrix.getHeight();
+        int realMaxRow = Math.min(maxTileRow, mosaicMatrix.getHeight());
+
+        int maxTileCol = position.getLeft() + tileMatrix.getWidth();
+        int realMaxCol = Math.min(maxTileCol, mosaicMatrix.getWidth());
+
+        for (int i = position.getTop(); i <  realMaxRow; i++) {
+            for (int j = position.getLeft(); j <  realMaxCol; j++) {
+                if (tileMatrix.isOccupied(i - position.getTop(), j - position.getLeft())) {
+                    mosaicMatrix.setOccupied(i, j, false);
+                }
+            }
+        }
+    }
+
     private int findSuitableColumn(UnitMatrix tileMatrix, int row) {
         int maxColumn = mosaicMatrix.getWidth() - tileMatrix.getWidth();
 

@@ -1,11 +1,15 @@
 package com.autocomple.mosaic;
 
 import com.autocomple.mosaic.command.AddCommand;
+import com.autocomple.mosaic.command.AddToIndexCommand;
+import com.autocomple.mosaic.command.AppendCommand;
+import com.autocomple.mosaic.command.PrependCommand;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -26,6 +30,7 @@ public class MosaicTile extends Tile {
     private Mosaic mosaic;
 
     private List<Tile> tileList = new ArrayList<>();
+    private HashMap<Tile, Mosaic.Position> tilePositions = new HashMap<>();
 
     /**
      * @param commandEventBus the event bus used to provide command events
@@ -71,12 +76,24 @@ public class MosaicTile extends Tile {
         }
     }
 
-    protected void addTile(Tile tile) {
-        add(tile);
+    protected void addTile(Tile tile, int index) {
+        insert(tile, index);
 
-        tileList.add(tile);
+        tileList.add(index, tile);
 
-        renderTile(tile);
+        clearTilesFrom(index + 1);
+        for (int i = index; i < getWidgetCount(); i++) {
+            renderTile(tileList.get(i));
+        }
+    }
+
+    private void clearTilesFrom(int index) {
+        for (int i = index; i < getWidgetCount(); i++) {
+            Tile tile = tileList.get(i);
+            if (tilePositions.containsKey(tile)) {
+                mosaic.removeTile(tile.getMatrix(unitHeight, unitWidth), tilePositions.get(tile));
+            }
+        }
     }
 
     private void renderTile(Tile tile) {
@@ -85,17 +102,28 @@ public class MosaicTile extends Tile {
         Mosaic.Position tilePosition = mosaic.placeTile(tileMatrix);
 
         if (tilePosition != null) {
+            tilePositions.put(tile, tilePosition);
+
             setWidgetLeftWidth(tile, tilePosition.getLeft() * unitWidth, Style.Unit.PX,
                     tile.getPlacerWidth().getValue(), tile.getPlacerWidth().getUnit());
 
             setWidgetTopHeight(tile, tilePosition.getTop() * unitHeight, Style.Unit.PX,
                     tile.getPlacerHeight().getValue(), tile.getPlacerHeight().getUnit());
+        } else {
+            tilePositions.remove(tile);
         }
     }
 
-    //todo: add to different indices
     protected void addAddCommandHandler() {
-        addCommandHandler(command -> addTile(command.getTile()), AddCommand.TYPE);
+        addCommandHandler(command -> {
+            if (command instanceof AppendCommand) {
+                addTile(command.getTile(), getWidgetCount());
+            } else if (command instanceof PrependCommand) {
+                addTile(command.getTile(), 0);
+            } else if (command instanceof AddToIndexCommand) {
+                addTile(command.getTile(), ((AddToIndexCommand)command).getIndex());
+            }
+        }, AddCommand.TYPE);
     }
 
     //todo: remove command
