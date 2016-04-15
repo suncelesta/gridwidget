@@ -3,6 +3,7 @@ package com.autocomple.testrags;
 import com.autocomple.mosaic.Dimension;
 import com.autocomple.mosaic.MosaicPanel;
 import com.autocomple.mosaic.command.PrependCommand;
+import com.autocomple.mosaic.command.RemoveCommand;
 import com.autocomple.mosaic.command.UpdateCommand;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.core.client.GWT;
@@ -55,6 +56,10 @@ public class Rags extends Composite {
         ragpiece.setPlacerWidth(width);
 
         ragpiece.addClickHandler((event) -> changePieceColor(ragpiece));
+        ragpiece.addContextMenuHandler((event -> {
+            event.preventDefault();
+            remove(ragpiece);
+        }));
 
         PrependCommand.sendTo(ragsContainer, ragpiece);
         UpdateCommand.sendTo(ragpiece, color);
@@ -64,6 +69,10 @@ public class Rags extends Composite {
 
     private void changePieceColor(Ragpiece piece) {
         UpdateCommand.sendTo(piece, randomColor());
+    }
+
+    private void remove(Ragpiece ragpiece) {
+        RemoveCommand.sendTo(ragsContainer, ragpiece);
     }
 
     private Dimension randomDimension() {

@@ -1,9 +1,6 @@
 package com.autocomple.mosaic;
 
-import com.autocomple.mosaic.command.AddCommand;
-import com.autocomple.mosaic.command.AddToIndexCommand;
-import com.autocomple.mosaic.command.AppendCommand;
-import com.autocomple.mosaic.command.PrependCommand;
+import com.autocomple.mosaic.command.*;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
@@ -42,9 +39,8 @@ public class MosaicTile extends Tile {
 
         this.internalWidthInUnits = internalWidthInUnits;
         this.internalHeightInUnits = internalHeightInUnits;
-        this.mosaic = new Mosaic(internalHeightInUnits, internalWidthInUnits);
 
-        addAddCommandHandler();
+        init();
     }
 
     /**
@@ -53,9 +49,14 @@ public class MosaicTile extends Tile {
     public MosaicTile(EventBus commandEventBus) {
         super(commandEventBus);
 
+        init();
+    }
+
+    private void init() {
         this.mosaic = new Mosaic(internalHeightInUnits, internalWidthInUnits);
 
         addAddCommandHandler();
+        addRemoveCommandHandler();
     }
 
     @Override
@@ -126,8 +127,15 @@ public class MosaicTile extends Tile {
         }, AddCommand.TYPE);
     }
 
-    //todo: remove command
-    protected void removeUnit(Tile tile) {
+    protected void addRemoveCommandHandler() {
+        addCommandHandler(command -> removeTile(command.getTile()), RemoveCommand.TYPE);
+    }
+
+    protected void removeTile(Tile tile) {
         remove(tile);
+
+        tileList.remove(tile);
+
+        rearrangeTiles();
     }
 }

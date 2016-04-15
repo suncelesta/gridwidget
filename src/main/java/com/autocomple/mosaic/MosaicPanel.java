@@ -1,6 +1,7 @@
 package com.autocomple.mosaic;
 
 import com.autocomple.mosaic.command.AddCommand;
+import com.autocomple.mosaic.command.RemoveCommand;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.ResizeLayoutPanel;
@@ -22,11 +23,11 @@ public class MosaicPanel extends ResizeLayoutPanel {
 
         getElement().getStyle().setPosition(Style.Position.ABSOLUTE);
 
-        delegateAddCommands();
+        delegateCommands();
     }
 
-    //todo: also remove
-    private void delegateAddCommands() {
+    private void delegateCommands() {
         addHandler(rootTile::fireEvent, AddCommand.TYPE);
+        addHandler(rootTile::fireEvent, RemoveCommand.TYPE);
     }
 }

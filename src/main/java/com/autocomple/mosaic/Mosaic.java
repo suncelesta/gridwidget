@@ -63,8 +63,7 @@ public class Mosaic {
     private boolean canPlace(UnitMatrix tileMatrix, int row, int column) {
         for (int r = row; r < row + tileMatrix.getHeight() && r < mosaicMatrix.getHeight(); r++) {
             for (int c = column; c < column + tileMatrix.getWidth() && c < mosaicMatrix.getWidth(); c++) {
-                boolean a = tileMatrix.isOccupied(r - row, c - column) && mosaicMatrix.isOccupied(r, c);
-                if (a) {
+                if (tileMatrix.isOccupied(r - row, c - column) && mosaicMatrix.isOccupied(r, c)) {
                     return false;
                 }
             }

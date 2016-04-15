@@ -4,9 +4,7 @@ import com.autocomple.mosaic.SingletonTile;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.safecss.shared.SafeStyles;
@@ -15,7 +13,7 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 
-public class Ragpiece extends SingletonTile<String> implements HasClickHandlers {
+public class Ragpiece extends SingletonTile<String> implements HasClickHandlers, HasContextMenuHandlers {
     /**
      * Constructs a {@code Ragpiece} with the given with and height.
      *
@@ -34,6 +32,17 @@ public class Ragpiece extends SingletonTile<String> implements HasClickHandlers 
     @Override
     public HandlerRegistration addClickHandler(ClickHandler handler) {
         return addDomHandler(handler, ClickEvent.getType());
+    }
+
+    /**
+     * Adds a {@link ContextMenuEvent} handler.
+     *
+     * @param handler the context menu handler
+     * @return {@link HandlerRegistration} used to remove this handler
+     */
+    @Override
+    public HandlerRegistration addContextMenuHandler(ContextMenuHandler handler) {
+        return addDomHandler(handler, ContextMenuEvent.getType());
     }
 
     public static class RagpieceCell extends AbstractCell<String> {
