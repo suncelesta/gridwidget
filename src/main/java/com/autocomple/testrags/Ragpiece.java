@@ -3,7 +3,6 @@ package com.autocomple.testrags;
 import com.autocomple.mosaic.SingletonTile;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -20,7 +19,7 @@ public class Ragpiece extends SingletonTile<String> implements HasClickHandlers,
      * @param eventBus the event bus used to provide command events
      */
     public Ragpiece(EventBus eventBus) {
-        super(eventBus, new RagpieceCell());
+        super(eventBus, RagpieceResources.INSTANCE, new RagpieceCell());
     }
 
     /**
@@ -52,9 +51,9 @@ public class Ragpiece extends SingletonTile<String> implements HasClickHandlers,
         public void render(Context context, String color, SafeHtmlBuilder sb) {
             SafeStyles ragpieceStyle = new SafeStylesBuilder()
                     .trustedBackgroundColor(color)
-                    .height(100, Style.Unit.PCT)
-                    .width(100, Style.Unit.PCT)
-                    .borderStyle(Style.BorderStyle.SOLID)
+                    .height(100, com.google.gwt.dom.client.Style.Unit.PCT)
+                    .width(100, com.google.gwt.dom.client.Style.Unit.PCT)
+                    .borderStyle(com.google.gwt.dom.client.Style.BorderStyle.SOLID)
                     .trustedBorderColor("#900")
                     .appendTrustedString("box-sizing: border-box;\n" +
                             "    -moz-box-sizing: border-box;\n" +
@@ -69,5 +68,13 @@ public class Ragpiece extends SingletonTile<String> implements HasClickHandlers,
             @Template("<div style=\"{0}\"></div>")
             SafeHtml ragpiece(SafeStyles style);
         }
+    }
+
+    public interface RagpieceResources extends Resources {
+
+        RagpieceResources INSTANCE = GWT.create(RagpieceResources.class);
+
+        @Source("ragpiece.css")
+        Style tileStyle();
     }
 }

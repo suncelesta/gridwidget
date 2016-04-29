@@ -1,38 +1,48 @@
 package com.autocomple.mosaic;
 
 import com.autocomple.mosaic.command.Command;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.client.ui.LayoutPanel;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import com.google.gwt.user.client.ui.ResizeComposite;
 
 /**
  * A tile of the widget mosaic.
  */
-public abstract class Tile extends LayoutPanel {
+public abstract class Tile extends ResizeComposite {
+
+    private static Resources DEFAULT_RESOURCES;
 
     private EventBus commandEventBus;
-
-    private Dimension placerHeight;
-    private Dimension placerWidth;
+    private LayoutPanel layoutPanel;
+    private Element sizeEstimatorElement;
+    private Style style;
 
     /**
      * Constructs a new {@code Tile}.
      *
      * @param commandEventBus the event bus used to provide command events
+     * @param resources tile resources
      */
-    protected Tile(EventBus commandEventBus) {
+    protected Tile(EventBus commandEventBus,
+                   Resources resources) {
         this.commandEventBus = commandEventBus;
 
-        // to stretch over all the space in the placer element
-        // provided by outer layout panel
-        setHeight("100%");
-        setWidth("100%");
-    }
+        this.style = resources.tileStyle();
+        this.style.ensureInjected();
 
+        this.layoutPanel = new LayoutPanel();
+        this.sizeEstimatorElement = Document.get().createDivElement();
+        this.sizeEstimatorElement.addClassName(style.tileContainer());
+
+        initWidget(layoutPanel);
+    }
     /**
      * Adds the handler for a command event. Command events
      * are used to manipulate with unit's content: add,
@@ -59,24 +69,21 @@ public abstract class Tile extends LayoutPanel {
         }
     }
 
-    public void setPlacerHeight(Dimension height) {
-        this.placerHeight = height;
+    public void setHeight(double value, com.google.gwt.dom.client.Style.Unit unit) {
+        sizeEstimatorElement.getStyle().setHeight(value, unit);
     }
 
-    public void setPlacerWidth(Dimension width) {
-        this.placerWidth = width;
+    public void setWidth(double value, com.google.gwt.dom.client.Style.Unit unit) {
+        sizeEstimatorElement.getStyle().setWidth(value, unit);
     }
 
-    protected Mosaic.UnitMatrix getMatrix(double unitHeight,
-                                          double unitWidth) {
+    protected Mosaic.UnitMatrix getMatrix(int height,
+                                          int width) {
 
-        int heightInUnits = round(getRelativeDimension(placerHeight, getParent().getOffsetHeight()) / unitHeight);
-        int widthInUnits = round(getRelativeDimension(placerWidth, getParent().getOffsetWidth()) / unitWidth);
+        Mosaic.UnitMatrix result = new Mosaic.UnitMatrix(height, width);
 
-        Mosaic.UnitMatrix result = new Mosaic.UnitMatrix(heightInUnits, widthInUnits);
-
-        for (int i = 0; i < heightInUnits; i++) {
-            for (int j = 0; j < widthInUnits; j++) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 result.setOccupied(i, j, true);
             }
         }
@@ -84,29 +91,34 @@ public abstract class Tile extends LayoutPanel {
         return result;
     }
 
-    // this is more correct for tile placement than simply ceiling,
-    // as we care about at least half a pixel
-    private int round(double value) {
-        return new BigDecimal(value).setScale(0, RoundingMode.HALF_UP).intValue();
+    protected LayoutPanel getLayoutPanel() {
+        return layoutPanel;
     }
 
-    protected Dimension getPlacerHeight() {
-        return placerHeight;
+    protected Element getSizeEstimatorElement() {
+        return sizeEstimatorElement;
     }
 
-    protected Dimension getPlacerWidth() {
-        return placerWidth;
+    public interface Style extends CssResource {
+        String DEFAULT_CSS = "com/autocomple/mosaic/tile.css";
+
+        String tileContainer();
     }
 
-    private double getRelativeDimension(Dimension dimension,
-                                        int parentDimension) {
-        switch (dimension.getUnit()) {
-            case PCT:
-                return parentDimension * dimension.getValue() / 100;
-            case PX:
-                return dimension.getValue();
-            default:
-                throw new UnsupportedOperationException();
+    public interface Resources extends ClientBundle {
+
+        @Source(Style.DEFAULT_CSS)
+        Tile.Style tileStyle();
+    }
+
+    protected static Resources getDefaultResources() {
+        if (DEFAULT_RESOURCES == null) {
+            DEFAULT_RESOURCES = GWT.create(Resources.class);
         }
+        return DEFAULT_RESOURCES;
+    }
+
+    Style getStyle() {
+        return style;
     }
 }

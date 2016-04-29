@@ -20,7 +20,18 @@ public class SingletonTile<Value> extends Tile {
      */
     protected SingletonTile(EventBus commandEventBus,
                             Cell<Value> cell) {
-        super(commandEventBus);
+        this(commandEventBus, getDefaultResources(), cell);
+    }
+
+    /**
+     * @param commandEventBus the event bus used to provide command events
+     * @param resources tile resources
+     * @param cell     the cell used to render unit content
+     */
+    protected SingletonTile(EventBus commandEventBus,
+                            Resources resources,
+                            Cell<Value> cell) {
+        super(commandEventBus, resources);
         this.cell = cell;
 
         addUpdateCommandHandler();
