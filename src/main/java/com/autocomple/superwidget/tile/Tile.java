@@ -2,6 +2,7 @@ package com.autocomple.superwidget.tile;
 
 import com.autocomple.superwidget.Mosaic;
 import com.autocomple.superwidget.command.Command;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -20,6 +21,8 @@ public abstract class Tile extends ResizeComposite {
 
     private ContainerSettings containerSettings = new ContainerSettings();
 
+    protected HandlerRegistration attachHandler;
+
     public static class ContainerSettings {
         private SafeStylesBuilder stylesBuilder = new SafeStylesBuilder();
         private String className;
@@ -28,11 +31,11 @@ public abstract class Tile extends ResizeComposite {
             return stylesBuilder.toSafeStyles();
         }
 
-        public void setHeight(double value, com.google.gwt.dom.client.Style.Unit unit) {
+        public void setHeight(double value, Style.Unit unit) {
             stylesBuilder.height(value, unit);
         }
 
-        public void setWidth(double value, com.google.gwt.dom.client.Style.Unit unit) {
+        public void setWidth(double value, Style.Unit unit) {
             stylesBuilder.width(value, unit);
         }
 
@@ -56,6 +59,9 @@ public abstract class Tile extends ResizeComposite {
      */
     protected Tile(Widget wrappedWidget) {
         initWidget(wrappedWidget);
+
+        this.attachHandler = addAttachHandler((e) ->
+                getElement().getParentElement().addClassName(getContainerSettings().getClassName()));
     }
 
     public void setCommandEventBus(EventBus commandEventBus) {

@@ -130,8 +130,7 @@ public class CompositeTile extends Tile {
 
         ContainerSettings containerSettings = tile.getContainerSettings();
 
-        //todo: do this on attach? so that we can have widgets based on simple tiles
-        tileContainer.setClassName(containerSettings.getClassName());
+        tileContainer.addClassName(containerSettings.getClassName());
 
         SafeStyles inlineContainerStyle = containerSettings.getStyles();
         com.google.gwt.dom.client.Style tileContainerStyle = tileContainer.getStyle();
