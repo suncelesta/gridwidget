@@ -5,6 +5,8 @@ import com.autocomple.superwidget.tile.CompositeTile;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.CssResource;
 
 import java.util.Random;
 
@@ -13,6 +15,8 @@ public class Rags extends SuperWidget {
 
     protected Rags() {
         super(new CompositeTile());
+
+        Resources.INSTANCE.ragpieceStyle().ensureInjected();
     }
 
     public void addRagpiece() {
@@ -29,7 +33,10 @@ public class Rags extends SuperWidget {
                              Style.Unit widthUnit,
                              String color) {
 
-        Ragpiece ragpiece = new Ragpiece(heightValue, heightUnit, widthValue, widthUnit);
+        Ragpiece ragpiece = new Ragpiece(
+                heightValue, heightUnit,
+                widthValue, widthUnit,
+                Resources.INSTANCE.ragpieceStyle().ragpiece());
         //todo: find how it can be natural, without forgetting – back into constructor?
         ragpiece.setCommandEventBus(getCommandEventBus());
 
@@ -68,5 +75,17 @@ public class Rags extends SuperWidget {
         int b = random.nextInt(256);
 
         return CssColor.make(r, g, b).value();
+    }
+
+    public interface Resources extends ClientBundle {
+
+        Resources INSTANCE = GWT.create(Resources.class);
+
+        @Source("ragpiece.css")
+        RagsStyle ragpieceStyle();
+    }
+
+    public interface RagsStyle extends CssResource {
+        String ragpiece();
     }
 }

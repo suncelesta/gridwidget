@@ -18,16 +18,7 @@ public class SimpleTile<Value> extends Tile {
      * @param cell     the cell used to render tile content
      */
     protected SimpleTile(Cell<Value> cell) {
-        this(getDefaultResources(), cell);
-    }
-
-    /**
-     * @param resources tile resources
-     * @param cell     the cell used to render tile content
-     */
-    protected SimpleTile(Resources resources,
-                         Cell<Value> cell) {
-        super(new SimpleLayoutPanel(), resources);
+        super(new SimpleLayoutPanel());
         this.cell = cell;
     }
 

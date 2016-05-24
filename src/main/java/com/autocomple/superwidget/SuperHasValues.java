@@ -83,9 +83,20 @@ public abstract class SuperHasValues<Value> extends SuperWidget implements HasVa
         private Cell<Value> cell;
 
         public HasValuesTile(Cell<Value> cell) {
-            super();
             this.cell = cell;
         }
+
+        /**
+         * @param internalWidthInUnits  the width of inner mosaic in units
+         * @param internalHeightInUnits the height of inner mosaic in units
+         */
+        public HasValuesTile(int internalWidthInUnits,
+                             int internalHeightInUnits,
+                             Cell<Value> cell) {
+            super(internalWidthInUnits, internalHeightInUnits);
+            this.cell = cell;
+        }
+
 
         public Cell<Value> getCell() {
             return cell;

@@ -14,9 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * A mosaic tile which itself contains a mosaic.
- * The mosaic is divided into fixed number of rows and columns,
- * with height and width of cells (units) is changed on resize.
+ * A tile that can contain other tiles.
+ * Its mosaic is divided into fixed number of rows and columns,
+ * with height and width of cells (units) changed on resize.
  */
 public class CompositeTile extends Tile {
     private static final int DEFAULT_INTERNAL_WIDTH_IN_UNITS = 100;
@@ -37,32 +37,22 @@ public class CompositeTile extends Tile {
     private HashMap<Tile, Mosaic.Position> tilePositions = new HashMap<>();
 
     public CompositeTile() {
-        this(getDefaultResources());
+        this(DEFAULT_INTERNAL_WIDTH_IN_UNITS, DEFAULT_INTERNAL_HEIGHT_IN_UNITS);
     }
 
     /**
-     * @param resources tile resources
-     */
-    public CompositeTile(Resources resources) {
-        this(resources, DEFAULT_INTERNAL_WIDTH_IN_UNITS, DEFAULT_INTERNAL_HEIGHT_IN_UNITS);
-    }
-
-    /**
-     * @param resources tile resources
      * @param internalWidthInUnits the width of inner mosaic in units
      * @param internalHeightInUnits the height of inner mosaic in units
      */
-    public CompositeTile(Resources resources,
-                         int internalWidthInUnits,
+    public CompositeTile(int internalWidthInUnits,
                          int internalHeightInUnits) {
-        this(new LayoutPanel(), resources, internalWidthInUnits, internalHeightInUnits);
+        this(new LayoutPanel(), internalWidthInUnits, internalHeightInUnits);
     }
 
     private CompositeTile(LayoutPanel layoutPanel,
-                          Resources resources,
                           int internalWidthInUnits,
                           int internalHeightInUnits) {
-        super(layoutPanel, resources);
+        super(layoutPanel);
 
         this.layoutPanel = layoutPanel;
 
@@ -89,8 +79,8 @@ public class CompositeTile extends Tile {
     public void onResize() {
         Element containerParent = getContainerElement().getParentElement();
 
-        unitWidth = (double) getNormalizedWidth(containerParent) / internalWidthInUnits;
-        unitHeight = (double) getNormalizedHeight(containerParent) / internalHeightInUnits;
+        unitWidth = (double) getDiscountedDimension(containerParent, false) / internalWidthInUnits;
+        unitHeight = (double) getDiscountedDimension(containerParent, true) / internalHeightInUnits;
 
         Scheduler.get().scheduleDeferred(this::rearrangeTiles);
 
@@ -127,29 +117,32 @@ public class CompositeTile extends Tile {
         for (int i = index; i < getLayoutPanel().getWidgetCount(); i++) {
             Tile tile = tileList.get(i);
             if (tilePositions.containsKey(tile)) {
-                mosaic.removeTile(tile.getMatrix(getMatrixHeight(tile), getMatrixWidth(tile)), tilePositions.get(tile));
+                boolean isHeight = true;
+                mosaic.removeTile(tile.getMatrix(
+                        getMatrixDimension(tile, isHeight),
+                        getMatrixDimension(tile, !isHeight)), tilePositions.get(tile));
             }
         }
     }
 
     private void renderTile(Tile tile) {
         Element tileContainer = getChildContainerElement(tile);
-        //Element tileSizeEstimator = tile.getSizeEstimatorElement();
 
         ContainerSettings containerSettings = tile.getContainerSettings();
 
         //todo: do this on attach? so that we can have widgets based on simple tiles
-        tileContainer.setClassName(containerSettings.getClassName()); //tileSizeEstimator.getClassName());
+        tileContainer.setClassName(containerSettings.getClassName());
 
         SafeStyles inlineContainerStyle = containerSettings.getStyles();
         com.google.gwt.dom.client.Style tileContainerStyle = tileContainer.getStyle();
         tileContainerStyle.clearWidth();
         tileContainerStyle.clearHeight();
         appendStyle(tileContainer, inlineContainerStyle);
-        //tileContainer.getStyle().setProperty("width", tileSizeEstimator.getStyle().getWidth());
-        //tileContainer.getStyle().setProperty("height", tileSizeEstimator.getStyle().getHeight());
 
-        Mosaic.UnitMatrix tileMatrix = tile.getMatrix(getMatrixHeight(tile), getMatrixWidth(tile));
+        boolean isHeight = true;
+        Mosaic.UnitMatrix tileMatrix = tile.getMatrix(
+                getMatrixDimension(tile, isHeight),
+                getMatrixDimension(tile, !isHeight));
 
         Mosaic.Position tilePosition = mosaic.placeTile(tileMatrix);
 
@@ -172,29 +165,38 @@ public class CompositeTile extends Tile {
         element.setAttribute("style", currentStyle + styleToAppend.asString());
     }
 
-    private int getMatrixHeight(Tile tile) {
-        return round(getChildContainerElement(tile).getOffsetHeight() / unitHeight);
-    }
+    //todo: this should be with mosaic – should be configurable using a parameter
+    private int getMatrixDimension(Tile tile, boolean vertical) {
+        Element containerElement = getChildContainerElement(tile);
+        int dimension = getDimension(containerElement, vertical);
+        double normalizationParameter = getNormalizationParameter(containerElement.getParentElement(), vertical);
 
-    private int getMatrixWidth(Tile tile) {
+        double unitSize = vertical ? unitHeight : unitWidth;
 
-        return round(getChildContainerElement(tile).getOffsetWidth() / unitWidth);
+        return round(dimension * normalizationParameter / unitSize);
     }
 
     private Element getChildContainerElement(Tile child) {
         return getLayoutPanel().getWidgetContainerElement(child);
     }
 
-    private int getNormalizedHeight(Element element) {
-        return normalize(element.getOffsetHeight());
+    private int getDiscountedDimension(Element element, boolean vertical) {
+        return discount(getDimension(element, vertical));
     }
 
-    private int getNormalizedWidth(Element element) {
-        return normalize(element.getOffsetWidth());
+    private double getNormalizationParameter(Element element, boolean vertical) {
+        int dimension = getDimension(element, vertical);
+
+        return (double) discount(dimension) / dimension;
     }
 
-    // TODO: 20.05.16 conditional normalization: only if parent has scrollbar
-    private int normalize(int dimension) {
+    private int getDimension(Element element, boolean vertical) {
+        return vertical ?
+                element.getOffsetHeight() :
+                element.getOffsetWidth();
+    }
+
+    private int discount(int dimension) {
         return dimension - SCROLLBAR_WIDTH;
     }
 

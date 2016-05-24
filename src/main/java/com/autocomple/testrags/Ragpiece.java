@@ -18,11 +18,13 @@ public class Ragpiece extends SimpleTile<String> implements HasClickHandlers, Ha
     public Ragpiece(double heightValue,
                     com.google.gwt.dom.client.Style.Unit heightUnit,
                     double widthValue,
-                    com.google.gwt.dom.client.Style.Unit widthUnit) {
-        super(RagpieceResources.INSTANCE, new RagpieceCell());
+                    com.google.gwt.dom.client.Style.Unit widthUnit,
+                    String className) {
+        super(new RagpieceCell());
 
-        setContainerHeight(heightValue, heightUnit);
-        setContainerWidth(widthValue, widthUnit);
+        getContainerSettings().setHeight(heightValue, heightUnit);
+        getContainerSettings().setWidth(widthValue, widthUnit);
+        getContainerSettings().setClassName(className);
     }
 
     /**
@@ -71,13 +73,5 @@ public class Ragpiece extends SimpleTile<String> implements HasClickHandlers, Ha
             @Template("<div style=\"{0}\"></div>")
             SafeHtml ragpiece(SafeStyles style);
         }
-    }
-
-    public interface RagpieceResources extends Resources {
-
-        RagpieceResources INSTANCE = GWT.create(RagpieceResources.class);
-
-        @Source("ragpiece.css")
-        Style tileStyle();
     }
 }

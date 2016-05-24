@@ -2,12 +2,9 @@ package com.autocomple.superwidget.tile;
 
 import com.autocomple.superwidget.Mosaic;
 import com.autocomple.superwidget.command.Command;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.resources.client.ClientBundle;
-import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.safecss.shared.SafeStyles;
 import com.google.gwt.safecss.shared.SafeStylesBuilder;
 import com.google.gwt.user.client.ui.RequiresResize;
@@ -19,15 +16,11 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public abstract class Tile extends ResizeComposite {
 
-    private static Resources DEFAULT_RESOURCES;
-
     private EventBus commandEventBus;
 
     private ContainerSettings containerSettings = new ContainerSettings();
 
-    private Style style;
-
-    protected static class ContainerSettings {
+    public static class ContainerSettings {
         private SafeStylesBuilder stylesBuilder = new SafeStylesBuilder();
         private String className;
 
@@ -60,14 +53,8 @@ public abstract class Tile extends ResizeComposite {
      * Constructs a new {@code Tile}.
      *
      * @param wrappedWidget the wrapped widget; must extend {@link RequiresResize}
-     * @param resources tile resources
      */
-    protected Tile(Widget wrappedWidget, Resources resources) {
-        this.style = resources.tileStyle();
-        this.style.ensureInjected();
-
-        containerSettings.setClassName(style.tileContainer());
-
+    protected Tile(Widget wrappedWidget) {
         initWidget(wrappedWidget);
     }
 
@@ -104,14 +91,6 @@ public abstract class Tile extends ResizeComposite {
         }
     }
 
-    protected void setContainerHeight(double value, com.google.gwt.dom.client.Style.Unit unit) {
-        containerSettings.setHeight(value, unit);
-    }
-
-    protected void setContainerWidth(double value, com.google.gwt.dom.client.Style.Unit unit) {
-        containerSettings.setWidth(value, unit);
-    }
-
     protected Mosaic.UnitMatrix getMatrix(int height,
                                           int width) {
 
@@ -124,29 +103,5 @@ public abstract class Tile extends ResizeComposite {
         }
 
         return result;
-    }
-
-    // TODO: 20.05.16 just fixed class name for estimator, styles only in widgets
-    public interface Style extends CssResource {
-        String DEFAULT_CSS = "com/autocomple/superwidget/tile/tile.css";
-
-        String tileContainer();
-    }
-
-    public interface Resources extends ClientBundle {
-
-        @Source(Style.DEFAULT_CSS)
-        Tile.Style tileStyle();
-    }
-
-    protected static Resources getDefaultResources() {
-        if (DEFAULT_RESOURCES == null) {
-            DEFAULT_RESOURCES = GWT.create(Resources.class);
-        }
-        return DEFAULT_RESOURCES;
-    }
-
-    Style getStyle() {
-        return style;
     }
 }

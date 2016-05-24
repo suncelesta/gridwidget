@@ -3,16 +3,37 @@ package com.autocomple.superwidget;
 import com.autocomple.superwidget.tile.SimpleTile;
 import com.autocomple.superwidget.tile.Tile;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.CssResource;
 
 public class SuperList<Value> extends SuperHasValues<Value> {
 
+    private static Resources DEFAULT_RESOURCES;
+
+    private Style style;
+
     public SuperList(Cell<Value> cell) {
-        super(new ListTile<>(cell));
+        this(cell, getDefaultResources());
     }
 
-    public SuperList(Cell<Value> cell, EventBus commandEventBus) {
+    public SuperList(Cell<Value> cell,
+                     Resources resources) {
+        this(cell, resources, new SimpleEventBus());
+    }
+
+    public SuperList(Cell<Value> cell,
+                     Resources resources,
+                     EventBus commandEventBus) {
+
         super(new ListTile<>(cell), commandEventBus);
+
+        this.style = resources.superListStyle();
+        this.style.ensureInjected();
+
+        getRootTile().getContainerSettings().setClassName(style.superListWidget());
     }
 
     @Override
@@ -20,6 +41,7 @@ public class SuperList<Value> extends SuperHasValues<Value> {
         Tile child = new ListTileItem<>(getCell());
 
         child.setCommandEventBus(getCommandEventBus());
+        child.getContainerSettings().setClassName(style.superListItem());
 
         return child;
     }
@@ -37,16 +59,28 @@ public class SuperList<Value> extends SuperHasValues<Value> {
         public ListTileItem(Cell<Value> cell) {
             super(cell);
 
-            setContainerWidth(100, com.google.gwt.dom.client.Style.Unit.PCT);
-            //todo: temp
-            setContainerHeight(40, com.google.gwt.dom.client.Style.Unit.PX);
+            getContainerSettings().setWidth(100, com.google.gwt.dom.client.Style.Unit.PCT);
         }
+    }
 
-        //todo: use in resources
-        public interface Style extends Tile.Style {
+    public interface Style extends CssResource {
+        String DEFAULT_CSS = "com/autocomple/superwidget/superlist.css";
 
-            @ClassName("tile-list-item")
-            String tileContainer();
+        String superListItem();
+
+        String superListWidget();
+    }
+
+    public interface Resources extends ClientBundle {
+
+        @Source(Style.DEFAULT_CSS)
+        Style superListStyle();
+    }
+
+    protected static Resources getDefaultResources() {
+        if (DEFAULT_RESOURCES == null) {
+            DEFAULT_RESOURCES = GWT.create(Resources.class);
         }
+        return DEFAULT_RESOURCES;
     }
 }
