@@ -16,6 +16,7 @@ public class Mosaic {
         }
 
         if (tileMatrix.getWidth() > mosaicMatrix.getWidth()) {
+            //todo: make configurable; same for height!
             return null;
         }
 

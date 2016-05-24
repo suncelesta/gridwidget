@@ -4,6 +4,7 @@ import com.autocomple.superwidget.Mosaic;
 import com.autocomple.superwidget.command.*;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.safecss.shared.SafeStyles;
 import com.google.gwt.user.client.ui.LayoutPanel;
 
@@ -133,7 +134,7 @@ public class CompositeTile extends Tile {
         tileContainer.addClassName(containerSettings.getClassName());
 
         SafeStyles inlineContainerStyle = containerSettings.getStyles();
-        com.google.gwt.dom.client.Style tileContainerStyle = tileContainer.getStyle();
+        Style tileContainerStyle = tileContainer.getStyle();
         tileContainerStyle.clearWidth();
         tileContainerStyle.clearHeight();
         appendStyle(tileContainer, inlineContainerStyle);
@@ -148,13 +149,18 @@ public class CompositeTile extends Tile {
         if (tilePosition != null) {
             tilePositions.put(tile, tilePosition);
 
+            Style tileStyle = tile.getElement().getStyle();
+            if (tileStyle.getDisplay().equals(Style.Display.NONE.getCssName())) {
+                tileStyle.clearDisplay();
+            }
+
             setChildLeftWidth(tile, tileContainer.getStyle().getWidth(), tilePosition.getLeft());
 
             setChildTopHeight(tile, tileContainer.getStyle().getHeight(), tilePosition.getTop());
 
         } else {
-            //todo: if tile can't be placed should not be shown!
             tilePositions.remove(tile);
+            tile.getElement().getStyle().setDisplay(Style.Display.NONE);
         }
     }
 
