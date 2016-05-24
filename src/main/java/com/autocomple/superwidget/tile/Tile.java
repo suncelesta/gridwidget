@@ -60,8 +60,12 @@ public abstract class Tile extends ResizeComposite {
     protected Tile(Widget wrappedWidget) {
         initWidget(wrappedWidget);
 
-        this.attachHandler = addAttachHandler((e) ->
-                getElement().getParentElement().addClassName(getContainerSettings().getClassName()));
+        this.attachHandler = addAttachHandler((e) -> {
+            String className = getContainerSettings().getClassName();
+            if (className != null) {
+                getElement().getParentElement().addClassName(className);
+            }
+        });
     }
 
     public void setCommandEventBus(EventBus commandEventBus) {

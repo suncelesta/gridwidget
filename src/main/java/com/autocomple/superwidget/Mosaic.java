@@ -2,6 +2,7 @@ package com.autocomple.superwidget;
 
 import java.util.Arrays;
 
+//todo: margin as parameter
 public class Mosaic {
     private UnitMatrix mosaicMatrix;
 

@@ -73,7 +73,6 @@ public class CompositeTile extends Tile {
     protected void addCommandHandlers() {
         addAddCommandHandler();
         addRemoveCommandHandler();
-        addClearCommandHandler();
     }
 
     @Override
@@ -133,6 +132,7 @@ public class CompositeTile extends Tile {
 
         tileContainer.addClassName(containerSettings.getClassName());
 
+        //todo: only if changed
         SafeStyles inlineContainerStyle = containerSettings.getStyles();
         Style tileContainerStyle = tileContainer.getStyle();
         tileContainerStyle.clearWidth();
@@ -257,6 +257,7 @@ public class CompositeTile extends Tile {
         return parsedUnit;
     }
 
+    //todo: extract interface, use visitor
     protected void addAddCommandHandler() {
         addCommandHandler(command -> {
             if (command instanceof AppendCommand) {
@@ -275,22 +276,17 @@ public class CompositeTile extends Tile {
                 removeTile(((RemoveTileCommand)command).getTile());
             } else if (command instanceof RemoveFromIndexCommand) {
                 int index = ((RemoveFromIndexCommand)command).getIndex();
-                //todo: check bounds
-                removeTile(tileList.get(index));
+                if (index >= 0 && index < tileList.size()) {
+                    removeTile(tileList.get(index));
+                }
+            } else if (command instanceof ClearCommand) {
+                mosaic.clear();
+
+                tilePositions.clear();
+
+                tileList.clear();
             }
         }, RemoveCommand.TYPE);
-    }
-
-    protected void addClearCommandHandler() {
-        addCommandHandler(command -> {
-            mosaic.clear();
-
-            tilePositions.clear();
-
-            tileList.clear();
-
-        }, ClearCommand.TYPE
-        );
     }
 
     protected void removeTile(Tile tile) {
