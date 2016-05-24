@@ -8,6 +8,6 @@
     <source path=""/>
 
     <!-- Specify the app entry point class.                   -->
-    <entry-point class='com.autocomple.RagsApp'/>
+    <entry-point class='com.autocomple.ListApp'/>
 
 </module>

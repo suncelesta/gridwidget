@@ -1,10 +1,9 @@
 package com.autocomple.testrags;
 
-import com.autocomple.mosaic.SingletonTile;
+import com.autocomple.superwidget.tile.SimpleTile;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.safecss.shared.SafeStyles;
 import com.google.gwt.safecss.shared.SafeStylesBuilder;
@@ -12,14 +11,18 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 
-public class Ragpiece extends SingletonTile<String> implements HasClickHandlers, HasContextMenuHandlers {
+public class Ragpiece extends SimpleTile<String> implements HasClickHandlers, HasContextMenuHandlers {
     /**
-     * Constructs a {@code Ragpiece} with the given with and height.
-     *
-     * @param eventBus the event bus used to provide command events
+     * Constructs a {@code Ragpiece}.
      */
-    public Ragpiece(EventBus eventBus) {
-        super(eventBus, RagpieceResources.INSTANCE, new RagpieceCell());
+    public Ragpiece(double heightValue,
+                    com.google.gwt.dom.client.Style.Unit heightUnit,
+                    double widthValue,
+                    com.google.gwt.dom.client.Style.Unit widthUnit) {
+        super(RagpieceResources.INSTANCE, new RagpieceCell());
+
+        setContainerHeight(heightValue, heightUnit);
+        setContainerWidth(widthValue, widthUnit);
     }
 
     /**

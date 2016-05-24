@@ -1,4 +1,4 @@
-package com.autocomple.mosaic;
+package com.autocomple.superwidget;
 
 import java.util.Arrays;
 
@@ -9,7 +9,6 @@ public class Mosaic {
         this.mosaicMatrix = new UnitMatrix(heightInUnits, widthInUnits);
     }
 
-    //todo: strategies
     public Position placeTile(UnitMatrix tileMatrix) {
 
         if (tileMatrix.isEmpty()) {
@@ -17,7 +16,6 @@ public class Mosaic {
         }
 
         if (tileMatrix.getWidth() > mosaicMatrix.getWidth()) {
-            //todo: resize?
             return null;
         }
 

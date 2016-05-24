@@ -1,4 +1,4 @@
-package com.autocomple.mosaic.command;
+package com.autocomple.superwidget.command;
 
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HasHandlers;

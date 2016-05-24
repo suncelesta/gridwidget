@@ -1,6 +1,6 @@
-package com.autocomple.mosaic.command;
+package com.autocomple.superwidget.command;
 
-import com.autocomple.mosaic.Tile;
+import com.autocomple.superwidget.tile.Tile;
 import com.google.gwt.event.shared.HasHandlers;
 
 public class AddToIndexCommand extends AddCommand {

@@ -1,53 +1,22 @@
 package com.autocomple.testrags;
 
-import com.autocomple.mosaic.MosaicPanel;
-import com.autocomple.mosaic.command.PrependCommand;
-import com.autocomple.mosaic.command.RemoveCommand;
-import com.autocomple.mosaic.command.UpdateCommand;
+import com.autocomple.superwidget.SuperWidget;
+import com.autocomple.superwidget.tile.CompositeTile;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTMLPanel;
 
 import java.util.Random;
 
-public class Rags extends Composite {
-
-    interface RagsUiBinder extends UiBinder<HTMLPanel, Rags> {}
-
-    private static RagsUiBinder uiBinder = GWT.create(RagsUiBinder.class);
-
-    private EventBus eventBus;
+public class Rags extends SuperWidget {
     private Random random = new Random();
 
-    @UiField(provided = true)
-    MosaicPanel ragsContainer;
-
-    /**
-     * Constructs an {@code Rags} with the given with and height.
-     *
-     * @param eventBus the event bus used to provide command events
-     */
-    public Rags(EventBus eventBus) {
-        this.eventBus = eventBus;
-        this.ragsContainer = new MosaicPanel(eventBus);
-
-        initWidget(uiBinder.createAndBindUi(this));
+    protected Rags() {
+        super(new CompositeTile());
     }
 
-    @UiHandler("addPieceButton")
-    void addPiece(ClickEvent event) {
-        addRagpiece();
-    }
-
-    private void addRagpiece() {
-        addRagpiece(randomDimensionValue(),
+    public void addRagpiece() {
+        addRagpiece(-1,//randomDimensionValue(),
                 randomDimensionUnit(),
                 randomDimensionValue(),
                 randomDimensionUnit(),
@@ -59,30 +28,29 @@ public class Rags extends Composite {
                              double widthValue,
                              Style.Unit widthUnit,
                              String color) {
-        Ragpiece ragpiece = new Ragpiece(eventBus);
 
-        //ragpiece.setHeight(heightValue, heightUnit);
-        ragpiece.setWidth(widthValue, widthUnit);
+        Ragpiece ragpiece = new Ragpiece(heightValue, heightUnit, widthValue, widthUnit);
+        //todo: find how it can be natural, without forgetting – back into constructor?
+        ragpiece.setCommandEventBus(getCommandEventBus());
 
-        ragpiece.addClickHandler((event) -> changePieceColor(ragpiece));
-        ragpiece.addContextMenuHandler((event -> {
-            event.preventDefault();
-            remove(ragpiece);
-        }));
+        prependTile(ragpiece);
 
-        PrependCommand.sendTo(ragsContainer, ragpiece);
-        UpdateCommand.sendTo(ragpiece, color);
+        initPiece(color, ragpiece);
 
         GWT.log("Added piece with height=" + heightValue + heightUnit.getType() +
                 ", width=" + widthValue + widthUnit.getType() + ", color=" + color);
     }
 
-    private void changePieceColor(Ragpiece piece) {
-        UpdateCommand.sendTo(piece, randomColor());
-    }
+    private void initPiece(String color, Ragpiece ragpiece) {
 
-    private void remove(Ragpiece ragpiece) {
-        RemoveCommand.sendTo(ragsContainer, ragpiece);
+        ragpiece.addClickHandler((event) -> updateTile(ragpiece, randomColor()));
+
+        ragpiece.addContextMenuHandler((event -> {
+            event.preventDefault();
+            removeTile(ragpiece);
+        }));
+
+        updateTile(ragpiece, color);
     }
 
     private double randomDimensionValue() {

@@ -1,6 +1,6 @@
-package com.autocomple.mosaic.command;
+package com.autocomple.superwidget.command;
 
-import com.autocomple.mosaic.Tile;
+import com.autocomple.superwidget.tile.Tile;
 
 public abstract class AddCommand extends Command<AddCommand.AddHandler> {
     private Tile tile;
