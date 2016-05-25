@@ -28,12 +28,12 @@ public class SimpleTile<Value> extends Tile {
     }
 
     protected void addUpdateCommandHandler() {
-        addCommandHandler(new UpdateCommand.UpdateHandler<Value>() {
+        addCommandHandler(UpdateCommand.TYPE, new UpdateCommand.UpdateHandler<Value>() {
             @Override
             public void onCommand(UpdateCommand<Value> command) {
                 update(null, command.getValue());
             }
-        }, UpdateCommand.TYPE);
+        });
     }
 
     protected void update(Cell.Context cellContext, Value value) {

@@ -71,8 +71,8 @@ public class CompositeTile extends Tile {
 
     @Override
     protected void addCommandHandlers() {
-        addAddCommandHandler();
-        addRemoveCommandHandler();
+        addAdditionCommandHandlers();
+        addRemovalCommandHandlers();
     }
 
     @Override
@@ -257,36 +257,40 @@ public class CompositeTile extends Tile {
         return parsedUnit;
     }
 
-    //todo: extract interface, use visitor
-    protected void addAddCommandHandler() {
-        addCommandHandler(command -> {
-            if (command instanceof AppendCommand) {
-                addTile(command.getTile(), getLayoutPanel().getWidgetCount());
-            } else if (command instanceof PrependCommand) {
-                addTile(command.getTile(), 0);
-            } else if (command instanceof AddToIndexCommand) {
-                addTile(command.getTile(), ((AddToIndexCommand)command).getIndex());
-            }
-        }, AddCommand.TYPE);
+    protected void addAdditionCommandHandlers() {
+        addCommandHandler(AppendCommand.TYPE,
+                (command) -> addTile(command.getTile(), getLayoutPanel().getWidgetCount())
+        );
+
+        addCommandHandler(PrependCommand.TYPE,
+                (command) -> addTile(command.getTile(), 0)
+        );
+
+        addCommandHandler(AddToIndexCommand.TYPE,
+                (command) -> addTile(command.getTile(), command.getIndex()));
+
     }
 
-    protected void addRemoveCommandHandler() {
-        addCommandHandler(command -> {
-            if (command instanceof RemoveTileCommand) {
-                removeTile(((RemoveTileCommand)command).getTile());
-            } else if (command instanceof RemoveFromIndexCommand) {
-                int index = ((RemoveFromIndexCommand)command).getIndex();
-                if (index >= 0 && index < tileList.size()) {
-                    removeTile(tileList.get(index));
-                }
-            } else if (command instanceof ClearCommand) {
-                mosaic.clear();
+    protected void addRemovalCommandHandlers() {
+        addCommandHandler(RemoveTileCommand.TYPE,
+                (command) -> removeTile(command.getTile()));
 
-                tilePositions.clear();
+        addCommandHandler(RemoveFromIndexCommand.TYPE,
+                (command) -> {
+                    int index = command.getIndex();
+                    if (index >= 0 && index < tileList.size()) {
+                        removeTile(tileList.get(index));
+                    }
+                });
 
-                tileList.clear();
-            }
-        }, RemoveCommand.TYPE);
+        addCommandHandler(ClearCommand.TYPE,
+                (command) -> {
+                    mosaic.clear();
+
+                    tilePositions.clear();
+
+                    tileList.clear();
+                });
     }
 
     protected void removeTile(Tile tile) {

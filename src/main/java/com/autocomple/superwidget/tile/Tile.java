@@ -80,15 +80,15 @@ public abstract class Tile extends ResizeComposite {
      * are used to manipulate with tile's content: add,
      * remove and update it.
      *
-     * @param handler the handler
-     * @param type event type
-     *
      * @param <H> handler type
      *
+     * @param type event type
+     *
+     * @param handler the handler
      * @return a {@link HandlerRegistration} to remove the handler
      */
     protected <H extends Command.Handler> HandlerRegistration addCommandHandler(
-            final H handler, GwtEvent.Type<H> type) {
+            GwtEvent.Type<H> type, final H handler) {
         return commandEventBus.addHandlerToSource(type, this, handler);
     }
 

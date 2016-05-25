@@ -2,7 +2,7 @@ package com.autocomple.superwidget.command;
 
 import com.google.gwt.event.shared.HasHandlers;
 
-public class RemoveFromIndexCommand extends RemoveCommand {
+public class RemoveFromIndexCommand extends Command<RemoveFromIndexCommand.RemoveFromIndexHandler> {
     private int index;
 
     public RemoveFromIndexCommand(int index) {
@@ -16,4 +16,18 @@ public class RemoveFromIndexCommand extends RemoveCommand {
     public int getIndex() {
         return index;
     }
+
+    public static final Type<RemoveFromIndexHandler> TYPE = new Type<>();
+
+    @Override
+    public Type<RemoveFromIndexHandler> getAssociatedType() {
+        return TYPE;
+    }
+
+    @Override
+    protected void dispatch(RemoveFromIndexHandler handler) {
+        handler.onCommand(this);
+    }
+
+    public interface RemoveFromIndexHandler extends Command.Handler<RemoveFromIndexCommand> {}
 }
