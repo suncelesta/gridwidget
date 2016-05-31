@@ -4,6 +4,7 @@ import com.autocomple.superwidget.tile.SimpleTile;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.safecss.shared.SafeStyles;
 import com.google.gwt.safecss.shared.SafeStylesBuilder;
@@ -19,8 +20,9 @@ public class Ragpiece extends SimpleTile<String> implements HasClickHandlers, Ha
                     com.google.gwt.dom.client.Style.Unit heightUnit,
                     double widthValue,
                     com.google.gwt.dom.client.Style.Unit widthUnit,
-                    String className) {
-        super(new RagpieceCell());
+                    String className,
+                    EventBus commandEventBus) {
+        super(new RagpieceCell(), commandEventBus);
 
         getContainerSettings().setHeight(heightValue, heightUnit);
         getContainerSettings().setWidth(widthValue, widthUnit);

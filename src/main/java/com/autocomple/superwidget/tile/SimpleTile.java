@@ -2,6 +2,7 @@ package com.autocomple.superwidget.tile;
 
 import com.autocomple.superwidget.command.UpdateCommand;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.SimpleLayoutPanel;
 
 /***
@@ -17,8 +18,8 @@ public class SimpleTile<Value> extends Tile {
     /**
      * @param cell     the cell used to render tile content
      */
-    protected SimpleTile(Cell<Value> cell) {
-        super(new SimpleLayoutPanel());
+    protected SimpleTile(Cell<Value> cell, EventBus commandEventBus) {
+        super(new SimpleLayoutPanel(), commandEventBus);
         this.cell = cell;
     }
 

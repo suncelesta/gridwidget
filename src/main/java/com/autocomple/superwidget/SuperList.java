@@ -28,7 +28,7 @@ public class SuperList<Value> extends SuperHasValues<Value> {
                      Resources resources,
                      EventBus commandEventBus) {
 
-        super(new ListTile<>(cell), commandEventBus);
+        super(new ListTile<>(cell, commandEventBus), commandEventBus);
 
         this.style = resources.superListStyle();
         this.style.ensureInjected();
@@ -38,17 +38,17 @@ public class SuperList<Value> extends SuperHasValues<Value> {
 
     @Override
     protected Tile createChild(Value value) {
-        Tile child = new ListTileItem<>(getCell());
+        Tile child = new ListTileItem<>(getCell(), getCommandEventBus());
 
-        child.setCommandEventBus(getCommandEventBus());
+        //child.setCommandEventBus(getCommandEventBus());
         child.getContainerSettings().setClassName(style.superListItem());
 
         return child;
     }
 
     static class ListTile<Value> extends HasValuesTile<Value> {
-        public ListTile(Cell<Value> cell) {
-            super(cell);
+        public ListTile(Cell<Value> cell, EventBus commandEventBus) {
+            super(cell, commandEventBus);
         }
     }
 
@@ -56,8 +56,8 @@ public class SuperList<Value> extends SuperHasValues<Value> {
         /**
          * @param cell the cell used to render tile content
          */
-        public ListTileItem(Cell<Value> cell) {
-            super(cell);
+        public ListTileItem(Cell<Value> cell, EventBus commandEventBus) {
+            super(cell, commandEventBus);
 
             getContainerSettings().setWidth(100, com.google.gwt.dom.client.Style.Unit.PCT);
         }

@@ -14,12 +14,6 @@ public abstract class SuperHasValues<Value> extends SuperWidget implements HasVa
     private List<Value> values;
     private Cell<Value> cell;
 
-    protected SuperHasValues(HasValuesTile<Value> rootTile) {
-        super(rootTile);
-
-        this.cell = rootTile.getCell();
-    }
-
     protected SuperHasValues(HasValuesTile<Value> rootTile, EventBus commandEventBus) {
         super(rootTile, commandEventBus);
 
@@ -82,7 +76,8 @@ public abstract class SuperHasValues<Value> extends SuperWidget implements HasVa
     public static class HasValuesTile<Value> extends CompositeTile {
         private Cell<Value> cell;
 
-        public HasValuesTile(Cell<Value> cell) {
+        public HasValuesTile(Cell<Value> cell, EventBus commandEventBus) {
+            super(commandEventBus);
             this.cell = cell;
         }
 
@@ -92,8 +87,9 @@ public abstract class SuperHasValues<Value> extends SuperWidget implements HasVa
          */
         public HasValuesTile(int internalWidthInUnits,
                              int internalHeightInUnits,
-                             Cell<Value> cell) {
-            super(internalWidthInUnits, internalHeightInUnits);
+                             Cell<Value> cell,
+                             EventBus commandEventBus) {
+            super(internalWidthInUnits, internalHeightInUnits, commandEventBus);
             this.cell = cell;
         }
 

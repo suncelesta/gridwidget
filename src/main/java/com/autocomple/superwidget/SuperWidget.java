@@ -18,7 +18,7 @@ public abstract class SuperWidget extends ResizeComposite {
         this.rootTile = rootTile;
         this.commandEventBus = commandEventBus;
 
-        rootTile.setCommandEventBus(commandEventBus);
+        //rootTile.setCommandEventBus(commandEventBus);
 
         initWidget(rootTile);
     }

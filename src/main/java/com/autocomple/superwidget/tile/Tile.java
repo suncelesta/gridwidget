@@ -57,7 +57,7 @@ public abstract class Tile extends ResizeComposite {
      *
      * @param wrappedWidget the wrapped widget; must extend {@link RequiresResize}
      */
-    protected Tile(Widget wrappedWidget) {
+    protected Tile(Widget wrappedWidget, EventBus commandEventBus) {
         initWidget(wrappedWidget);
 
         this.attachHandler = addAttachHandler((e) -> {
@@ -66,9 +66,8 @@ public abstract class Tile extends ResizeComposite {
                 getElement().getParentElement().addClassName(className);
             }
         });
-    }
 
-    public void setCommandEventBus(EventBus commandEventBus) {
+
         this.commandEventBus = commandEventBus;
         addCommandHandlers();
     }

@@ -5,6 +5,7 @@ import com.autocomple.superwidget.command.*;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.safecss.shared.SafeStyles;
 import com.google.gwt.user.client.ui.LayoutPanel;
 
@@ -37,8 +38,8 @@ public class CompositeTile extends Tile {
     private List<Tile> tileList = new ArrayList<>();
     private HashMap<Tile, Mosaic.Position> tilePositions = new HashMap<>();
 
-    public CompositeTile() {
-        this(DEFAULT_INTERNAL_WIDTH_IN_UNITS, DEFAULT_INTERNAL_HEIGHT_IN_UNITS);
+    public CompositeTile(EventBus commandEventBus) {
+        this(DEFAULT_INTERNAL_WIDTH_IN_UNITS, DEFAULT_INTERNAL_HEIGHT_IN_UNITS, commandEventBus);
     }
 
     /**
@@ -46,14 +47,16 @@ public class CompositeTile extends Tile {
      * @param internalHeightInUnits the height of inner mosaic in units
      */
     public CompositeTile(int internalWidthInUnits,
-                         int internalHeightInUnits) {
-        this(new LayoutPanel(), internalWidthInUnits, internalHeightInUnits);
+                         int internalHeightInUnits,
+                         EventBus commandEventBus) {
+        this(new LayoutPanel(), internalWidthInUnits, internalHeightInUnits, commandEventBus);
     }
 
     private CompositeTile(LayoutPanel layoutPanel,
                           int internalWidthInUnits,
-                          int internalHeightInUnits) {
-        super(layoutPanel);
+                          int internalHeightInUnits,
+                          EventBus commandEventBus) {
+        super(layoutPanel, commandEventBus);
 
         this.layoutPanel = layoutPanel;
 
