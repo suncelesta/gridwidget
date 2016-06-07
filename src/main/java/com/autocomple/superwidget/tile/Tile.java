@@ -6,37 +6,32 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.safecss.shared.SafeStyles;
-import com.google.gwt.safecss.shared.SafeStylesBuilder;
+import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.RequiresResize;
-import com.google.gwt.user.client.ui.ResizeComposite;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
  * A tile of the widget mosaic.
  */
-public abstract class Tile extends ResizeComposite {
+public abstract class Tile extends Composite implements RequiresResize {
 
     private EventBus commandEventBus;
 
-    private ContainerSettings containerSettings = new ContainerSettings();
+    private ContainerStyle containerStyle = new ContainerStyle();
 
     protected HandlerRegistration attachHandler;
 
-    public static class ContainerSettings {
-        private SafeStylesBuilder stylesBuilder = new SafeStylesBuilder();
+    public static class ContainerStyle {
+        private String height;
+        private String width;
         private String className;
 
-        public SafeStyles getStyles() {
-            return stylesBuilder.toSafeStyles();
-        }
-
         public void setHeight(double value, Style.Unit unit) {
-            stylesBuilder.height(value, unit);
+            this.height = Double.toString(value) + unit.getType();
         }
 
         public void setWidth(double value, Style.Unit unit) {
-            stylesBuilder.width(value, unit);
+            this.width = Double.toString(value) + unit.getType();
         }
 
         public String getClassName() {
@@ -46,22 +41,31 @@ public abstract class Tile extends ResizeComposite {
         public void setClassName(String className) {
             this.className = className;
         }
+
+        public String getHeight() {
+            return height;
+        }
+
+        public String getWidth() {
+            return width;
+        }
     }
 
-    public ContainerSettings getContainerSettings() {
-        return containerSettings;
+    public ContainerStyle getContainerStyle() {
+        return containerStyle;
     }
 
     /**
      * Constructs a new {@code Tile}.
      *
      * @param wrappedWidget the wrapped widget; must extend {@link RequiresResize}
+     * @param commandEventBus event bus used to receive commands
      */
     protected Tile(Widget wrappedWidget, EventBus commandEventBus) {
         initWidget(wrappedWidget);
 
         this.attachHandler = addAttachHandler((e) -> {
-            String className = getContainerSettings().getClassName();
+            String className = getContainerStyle().getClassName();
             if (className != null) {
                 getElement().getParentElement().addClassName(className);
             }

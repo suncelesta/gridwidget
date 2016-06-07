@@ -1,8 +1,9 @@
 package com.autocomple.testrags;
 
-import com.autocomple.superwidget.tile.SimpleTile;
+import com.autocomple.superwidget.tile.CellSimpleTile;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -12,21 +13,19 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 
-public class Ragpiece extends SimpleTile<String> implements HasClickHandlers, HasContextMenuHandlers {
+public class Ragpiece extends CellSimpleTile<String> implements HasClickHandlers, HasContextMenuHandlers {
     /**
      * Constructs a {@code Ragpiece}.
      */
-    public Ragpiece(double heightValue,
-                    com.google.gwt.dom.client.Style.Unit heightUnit,
-                    double widthValue,
+    public Ragpiece(double widthValue,
                     com.google.gwt.dom.client.Style.Unit widthUnit,
                     String className,
                     EventBus commandEventBus) {
         super(new RagpieceCell(), commandEventBus);
 
-        getContainerSettings().setHeight(heightValue, heightUnit);
-        getContainerSettings().setWidth(widthValue, widthUnit);
-        getContainerSettings().setClassName(className);
+        //getContainerStyle().setHeight(heightValue, heightUnit);
+        getContainerStyle().setWidth(widthValue, widthUnit);
+        getContainerStyle().setClassName(className);
     }
 
     /**
@@ -57,6 +56,7 @@ public class Ragpiece extends SimpleTile<String> implements HasClickHandlers, Ha
         @Override
         public void render(Context context, String color, SafeHtmlBuilder sb) {
             SafeStyles ragpieceStyle = new SafeStylesBuilder()
+                    .position(Style.Position.ABSOLUTE)
                     .trustedBackgroundColor(color)
                     .height(100, com.google.gwt.dom.client.Style.Unit.PCT)
                     .width(100, com.google.gwt.dom.client.Style.Unit.PCT)

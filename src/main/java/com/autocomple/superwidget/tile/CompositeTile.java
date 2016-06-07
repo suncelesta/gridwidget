@@ -6,8 +6,6 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.safecss.shared.SafeStyles;
-import com.google.gwt.user.client.ui.LayoutPanel;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -33,7 +31,7 @@ public class CompositeTile extends Tile {
     double unitHeight;
 
     private Mosaic mosaic;
-    private LayoutPanel layoutPanel;
+    private CompositeTilePanel panel;
 
     private List<Tile> tileList = new ArrayList<>();
     private HashMap<Tile, Mosaic.Position> tilePositions = new HashMap<>();
@@ -49,16 +47,16 @@ public class CompositeTile extends Tile {
     public CompositeTile(int internalWidthInUnits,
                          int internalHeightInUnits,
                          EventBus commandEventBus) {
-        this(new LayoutPanel(), internalWidthInUnits, internalHeightInUnits, commandEventBus);
+        this(new CompositeTilePanel(), internalWidthInUnits, internalHeightInUnits, commandEventBus);
     }
 
-    private CompositeTile(LayoutPanel layoutPanel,
+    private CompositeTile(CompositeTilePanel panel,
                           int internalWidthInUnits,
                           int internalHeightInUnits,
                           EventBus commandEventBus) {
-        super(layoutPanel, commandEventBus);
+        super(panel, commandEventBus);
 
-        this.layoutPanel = layoutPanel;
+        this.panel = (CompositeTilePanel) getWidget();
 
         this.internalWidthInUnits = internalWidthInUnits;
         this.internalHeightInUnits = internalHeightInUnits;
@@ -69,7 +67,7 @@ public class CompositeTile extends Tile {
     private void init() {
         this.mosaic = new Mosaic(internalHeightInUnits, internalWidthInUnits);
 
-        getLayoutPanel().addAttachHandler((e) -> onResize());
+        panel.addAttachHandler((e) -> onResize());
     }
 
     @Override
@@ -87,7 +85,7 @@ public class CompositeTile extends Tile {
 
         Scheduler.get().scheduleDeferred(this::rearrangeTiles);
 
-        getLayoutPanel().onResize();
+        panel.onResize();
     }
 
     //todo: getting through parent panel?
@@ -104,20 +102,20 @@ public class CompositeTile extends Tile {
     }
 
     protected void addTile(Tile tile, int index) {
-        getLayoutPanel().insert(tile, index);
+        panel.insert(tile, index);
 
         tileList.add(index, tile);
 
         clearTilesFrom(index + 1);
 
-        for (int i = index; i < getLayoutPanel().getWidgetCount(); i++) {
+        for (int i = index; i < panel.getWidgetCount(); i++) {
             final Tile tileToRender = tileList.get(i);
             Scheduler.get().scheduleFinally(() -> {renderTile(tileToRender);});
         }
     }
 
     private void clearTilesFrom(int index) {
-        for (int i = index; i < getLayoutPanel().getWidgetCount(); i++) {
+        for (int i = index; i < panel.getWidgetCount(); i++) {
             Tile tile = tileList.get(i);
             if (tilePositions.containsKey(tile)) {
                 boolean isHeight = true;
@@ -129,18 +127,8 @@ public class CompositeTile extends Tile {
     }
 
     private void renderTile(Tile tile) {
-        Element tileContainer = getChildContainerElement(tile);
 
-        ContainerSettings containerSettings = tile.getContainerSettings();
-
-        tileContainer.addClassName(containerSettings.getClassName());
-
-        //todo: only if changed
-        SafeStyles inlineContainerStyle = containerSettings.getStyles();
-        Style tileContainerStyle = tileContainer.getStyle();
-        tileContainerStyle.clearWidth();
-        tileContainerStyle.clearHeight();
-        appendStyle(tileContainer, inlineContainerStyle);
+        applyContainerStyle(tile);
 
         boolean isHeight = true;
         Mosaic.UnitMatrix tileMatrix = tile.getMatrix(
@@ -157,9 +145,9 @@ public class CompositeTile extends Tile {
                 tileStyle.clearDisplay();
             }
 
-            setChildLeftWidth(tile, tileContainer.getStyle().getWidth(), tilePosition.getLeft());
+            panel.setChildLeft(tile, tilePosition.getLeft() * unitWidth, Style.Unit.PX);
 
-            setChildTopHeight(tile, tileContainer.getStyle().getHeight(), tilePosition.getTop());
+            panel.setChildTop(tile, tilePosition.getTop() * unitHeight, Style.Unit.PX);
 
         } else {
             tilePositions.remove(tile);
@@ -167,10 +155,14 @@ public class CompositeTile extends Tile {
         }
     }
 
-    private static void appendStyle(Element element, SafeStyles styleToAppend) {
-        String currentStyle = element.getAttribute("style");
+    private void applyContainerStyle(Tile child) {
+        ContainerStyle childContainerStyle = child.getContainerStyle();
 
-        element.setAttribute("style", currentStyle + styleToAppend.asString());
+        panel.setChildContainerHeight(child, childContainerStyle.getHeight());
+
+        panel.setChildContainerWidth(child, childContainerStyle.getWidth());
+
+        panel.setChildContainerClassName(child, childContainerStyle.getClassName());
     }
 
     //todo: this should be with mosaic – should be configurable using a parameter
@@ -185,7 +177,7 @@ public class CompositeTile extends Tile {
     }
 
     private Element getChildContainerElement(Tile child) {
-        return getLayoutPanel().getWidgetContainerElement(child);
+        return panel.getChildContainer(child).getElement();
     }
 
     private int getDiscountedDimension(Element element, boolean vertical) {
@@ -214,55 +206,9 @@ public class CompositeTile extends Tile {
         return new BigDecimal(value).setScale(0, RoundingMode.HALF_UP).intValue();
     }
 
-    private void setChildLeftWidth(Tile child, String width, int left) {
-        double widthValue = width.isEmpty() ?
-                -1 :
-                parseValue(width);
-
-        com.google.gwt.dom.client.Style.Unit widthUnit = parseUnit(width);
-
-        getLayoutPanel().setWidgetLeftWidth(child,
-                left * unitWidth, com.google.gwt.dom.client.Style.Unit.PX,
-                widthValue, widthUnit);
-    }
-
-    private void setChildTopHeight(Tile child, String height, int top) {
-        double heightValue = height.isEmpty() ?
-                -1 :
-                parseValue(height);
-
-        com.google.gwt.dom.client.Style.Unit heightUnit = parseUnit(height);
-
-        getLayoutPanel().setWidgetTopHeight(child,
-                top * unitHeight, com.google.gwt.dom.client.Style.Unit.PX,
-                heightValue, heightUnit);
-    }
-
-    private static double parseValue(String dimensionAsString) {
-        return Double.parseDouble(dimensionAsString.replaceFirst("[^0-9.]+", ""));
-    }
-
-    private static com.google.gwt.dom.client.Style.Unit parseUnit(String dimensionAsString) {
-        com.google.gwt.dom.client.Style.Unit parsedUnit = null;
-
-        if (!dimensionAsString.isEmpty()) {
-
-            for (com.google.gwt.dom.client.Style.Unit unit : com.google.gwt.dom.client.Style.Unit.values()) {
-                if (dimensionAsString.endsWith(unit.getType())) {
-                    parsedUnit = unit;
-                }
-            }
-
-        } else {
-            parsedUnit = com.google.gwt.dom.client.Style.Unit.PX;
-        }
-
-        return parsedUnit;
-    }
-
     protected void addAdditionCommandHandlers() {
         addCommandHandler(AppendCommand.TYPE,
-                (command) -> addTile(command.getTile(), getLayoutPanel().getWidgetCount())
+                (command) -> addTile(command.getTile(), panel.getWidgetCount())
         );
 
         addCommandHandler(PrependCommand.TYPE,
@@ -297,15 +243,11 @@ public class CompositeTile extends Tile {
     }
 
     protected void removeTile(Tile tile) {
-        getLayoutPanel().remove(tile);
+        panel.remove(tile);
 
         tileList.remove(tile);
 
         rearrangeTiles();
-    }
-
-    public LayoutPanel getLayoutPanel() {
-        return layoutPanel;
     }
 
     private static native int getScrollBarWidth() /*-{

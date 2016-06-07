@@ -21,21 +21,18 @@ public class Rags extends SuperWidget {
     }
 
     public void addRagpiece() {
-        addRagpiece(-1,//randomDimensionValue(),
-                randomDimensionUnit(),
+        addRagpiece(
                 randomDimensionValue(),
                 randomDimensionUnit(),
                 randomColor());
     }
 
-    private void addRagpiece(double heightValue,
-                             Style.Unit heightUnit,
+    private void addRagpiece(
                              double widthValue,
                              Style.Unit widthUnit,
                              String color) {
 
         Ragpiece ragpiece = new Ragpiece(
-                heightValue, heightUnit,
                 widthValue, widthUnit,
                 Resources.INSTANCE.ragpieceStyle().ragpiece(),
                 getCommandEventBus());
@@ -44,8 +41,7 @@ public class Rags extends SuperWidget {
 
         initPiece(color, ragpiece);
 
-        GWT.log("Added piece with height=" + heightValue + heightUnit.getType() +
-                ", width=" + widthValue + widthUnit.getType() + ", color=" + color);
+        GWT.log("Added piece with width=" + widthValue + widthUnit.getType() + ", color=" + color);
     }
 
     private void initPiece(String color, Ragpiece ragpiece) {

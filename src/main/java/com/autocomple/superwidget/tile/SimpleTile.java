@@ -1,9 +1,10 @@
 package com.autocomple.superwidget.tile;
 
 import com.autocomple.superwidget.command.UpdateCommand;
-import com.google.gwt.cell.client.Cell;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.user.client.ui.SimpleLayoutPanel;
+import com.google.gwt.user.client.ui.RequiresResize;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.Widget;
 
 /***
  * A mosaic tile that represents a single value,
@@ -11,16 +12,25 @@ import com.google.gwt.user.client.ui.SimpleLayoutPanel;
  *
  * @param <Value> the type of the represented value
  */
-public class SimpleTile<Value> extends Tile {
-
-    private Cell<Value> cell;
+public abstract class SimpleTile<Value> extends Tile {
 
     /**
-     * @param cell     the cell used to render tile content
+     * Constructs a new {@code SimpleTile}.
+     *
+     * @param wrappedWidget   the wrapped widget; must extend {@link RequiresResize}
+     * @param commandEventBus event bus used to receive commands
      */
-    protected SimpleTile(Cell<Value> cell, EventBus commandEventBus) {
-        super(new SimpleLayoutPanel(), commandEventBus);
-        this.cell = cell;
+    public SimpleTile(Widget wrappedWidget, EventBus commandEventBus) {
+        super(wrappedWidget, commandEventBus);
+    }
+
+    /**
+     * Constructs a new {@code SimpleTile}.
+     *
+     * @param commandEventBus event bus used to receive commands
+     */
+    public SimpleTile(EventBus commandEventBus) {
+        super(new SimplePanel(), commandEventBus);
     }
 
     @Override
@@ -32,12 +42,21 @@ public class SimpleTile<Value> extends Tile {
         addCommandHandler(UpdateCommand.TYPE, new UpdateCommand.UpdateHandler<Value>() {
             @Override
             public void onCommand(UpdateCommand<Value> command) {
-                update(null, command.getValue());
+                update(command.getValue());
             }
         });
     }
 
-    protected void update(Cell.Context cellContext, Value value) {
-        cell.setValue(cellContext, getElement(), value);
+    protected abstract void update(Value value);
+
+    /**
+     * This method must be called whenever the implementor's size has been
+     * modified.
+     */
+    @Override
+    public void onResize() {
+        if (getWidget() instanceof RequiresResize) {
+            ((RequiresResize)getWidget()).onResize();
+        }
     }
 }

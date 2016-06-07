@@ -1,6 +1,6 @@
 package com.autocomple.superwidget;
 
-import com.autocomple.superwidget.tile.SimpleTile;
+import com.autocomple.superwidget.tile.CellSimpleTile;
 import com.autocomple.superwidget.tile.Tile;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;
@@ -33,15 +33,14 @@ public class SuperList<Value> extends SuperHasValues<Value> {
         this.style = resources.superListStyle();
         this.style.ensureInjected();
 
-        getRootTile().getContainerSettings().setClassName(style.superListWidget());
+        getRootTile().getContainerStyle().setClassName(style.superListWidget());
     }
 
     @Override
     protected Tile createChild(Value value) {
         Tile child = new ListTileItem<>(getCell(), getCommandEventBus());
 
-        //child.setCommandEventBus(getCommandEventBus());
-        child.getContainerSettings().setClassName(style.superListItem());
+        child.getContainerStyle().setClassName(style.superListItem());
 
         return child;
     }
@@ -52,14 +51,14 @@ public class SuperList<Value> extends SuperHasValues<Value> {
         }
     }
 
-    static class ListTileItem<Value> extends SimpleTile<Value> {
+    static class ListTileItem<Value> extends CellSimpleTile<Value> {
         /**
          * @param cell the cell used to render tile content
          */
         public ListTileItem(Cell<Value> cell, EventBus commandEventBus) {
             super(cell, commandEventBus);
 
-            getContainerSettings().setWidth(100, com.google.gwt.dom.client.Style.Unit.PCT);
+            getContainerStyle().setWidth(100, com.google.gwt.dom.client.Style.Unit.PCT);
         }
     }
 
