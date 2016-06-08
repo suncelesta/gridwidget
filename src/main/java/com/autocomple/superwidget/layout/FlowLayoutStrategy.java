@@ -1,8 +1,15 @@
 package com.autocomple.superwidget.layout;
 
 public class FlowLayoutStrategy extends MosaicBasedLayoutStrategy {
+
     public FlowLayoutStrategy(int heightInUnits, int widthInUnits, UnitRuler unitRuler) {
-        super(heightInUnits, widthInUnits, unitRuler);
+        this(heightInUnits, widthInUnits, new DefaultTileUnitMatrixFactory(unitRuler));
+    }
+
+    public FlowLayoutStrategy(int heightInUnits,
+                              int widthInUnits,
+                              TileUnitMatrixFactory tileUnitMatrixFactory) {
+        super(heightInUnits, widthInUnits, tileUnitMatrixFactory);
     }
 
     @Override
@@ -13,7 +20,6 @@ public class FlowLayoutStrategy extends MosaicBasedLayoutStrategy {
         }
 
         if (matrix.getWidth() > getMosaicMatrix().getWidth()) {
-            //todo: make configurable; same for height!
             return null;
         }
 
@@ -23,10 +29,16 @@ public class FlowLayoutStrategy extends MosaicBasedLayoutStrategy {
             if (column >= 0) break;
         }
 
+        if (row + matrix.getHeight() > getMosaicMatrix().getHeight()) {
+            onHeightOverflow();
+        }
+
         getMosaic().placeMatrix(matrix, row, column);
 
         return new LayoutStrategy.Position(row, column);
     }
+
+    protected void onHeightOverflow() {}
 
 
     private int findSuitableColumn(Mosaic.UnitMatrix tileMatrix, int row) {

@@ -1,25 +1,27 @@
 package com.autocomple.superwidget.layout;
 
+import com.autocomple.superwidget.tile.Tile;
 import com.autocomple.superwidget.util.Container;
 import com.google.gwt.dom.client.Element;
 
 public abstract class MosaicBasedLayoutStrategy implements LayoutStrategy {
     private Mosaic mosaic;
-    private UnitRuler unitRuler;
+    private TileUnitMatrixFactory tileUnitMatrixFactory;
 
     protected MosaicBasedLayoutStrategy(int heightInUnits,
                                      int widthInUnits,
-                                     UnitRuler unitRuler) {
-        this.unitRuler = unitRuler;
+                                     TileUnitMatrixFactory tileUnitMatrixFactory) {
+        this.tileUnitMatrixFactory = tileUnitMatrixFactory;
         this.mosaic = new Mosaic(heightInUnits, widthInUnits);
     }
 
     @Override
-    public Position place(Container tileContainer) {
+    public Position place(Tile tile, Container tileContainer) {
         Placeholder tilePlaceholder = getPlaceholder(tileContainer);
+
         Mosaic.UnitMatrix tileMatrix = tilePlaceholder != null ?
                 tilePlaceholder.getMatrix() :
-                newMatrix(tileContainer.getElement());
+                tileUnitMatrixFactory.createUnitMatrix(tile, tileContainer);
 
         Position topLeft = placeMatrix(tileMatrix);
 
@@ -61,27 +63,6 @@ public abstract class MosaicBasedLayoutStrategy implements LayoutStrategy {
         return mosaic;
     }
 
-    //todo: provider?
-    private Mosaic.UnitMatrix newMatrix(Element element) {
-        return newMatrix(
-                unitRuler.measureHeight(element),
-                unitRuler.measureWidth(element));
-    }
-
-    private Mosaic.UnitMatrix newMatrix(int height,
-                                        int width) {
-
-        Mosaic.UnitMatrix result = new Mosaic.UnitMatrix(height, width);
-
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                result.setOccupied(i, j, true);
-            }
-        }
-
-        return result;
-    }
-
     private static Placeholder getPlaceholder(Container container) {
         Object layoutStrategyData = container.getLayoutStrategyData();
 
@@ -107,6 +88,43 @@ public abstract class MosaicBasedLayoutStrategy implements LayoutStrategy {
 
         public Mosaic.UnitMatrix getMatrix() {
             return matrix;
+        }
+    }
+
+    public interface TileUnitMatrixFactory {
+        Mosaic.UnitMatrix createUnitMatrix(Tile tile, Container tileContainer);
+    }
+
+    protected static class DefaultTileUnitMatrixFactory implements TileUnitMatrixFactory {
+        private UnitRuler unitRuler;
+
+        public DefaultTileUnitMatrixFactory(UnitRuler unitRuler) {
+            this.unitRuler = unitRuler;
+        }
+
+        @Override
+        public Mosaic.UnitMatrix createUnitMatrix(Tile tile, Container tileContainer) {
+            return newMatrix(tileContainer.getElement());
+        }
+
+        private Mosaic.UnitMatrix newMatrix(Element element) {
+            return newMatrix(
+                    unitRuler.measureHeight(element),
+                    unitRuler.measureWidth(element));
+        }
+
+        private Mosaic.UnitMatrix newMatrix(int height,
+                                            int width) {
+
+            Mosaic.UnitMatrix result = new Mosaic.UnitMatrix(height, width);
+
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    result.setOccupied(i, j, true);
+                }
+            }
+
+            return result;
         }
     }
 }

@@ -1,10 +1,11 @@
 package com.autocomple.superwidget.layout;
 
+import com.autocomple.superwidget.tile.Tile;
 import com.autocomple.superwidget.util.Container;
 
 public interface LayoutStrategy {
 
-    Position place(Container tileContainer);
+    Position place(Tile tile, Container tileContainer);
 
     void remove(Container tileContainer);
 

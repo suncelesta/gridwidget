@@ -6,7 +6,6 @@ import com.autocomple.superwidget.layout.LayoutStrategy;
 import com.autocomple.superwidget.layout.UnitRuler;
 import com.autocomple.superwidget.util.Container;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
 
@@ -45,7 +44,7 @@ public class CompositeTile extends Tile {
         this.panel = (CompositeTilePanel) getWidget();
 
         panel.addAttachHandler((e) -> {
-            this.unitRuler = new UnitRuler(getContainerElement().getParentElement(),
+            this.unitRuler = new UnitRuler(getParent().getElement(),
                     internalWidthInUnits, internalHeightInUnits);
 
             this.layoutStrategy =
@@ -68,11 +67,6 @@ public class CompositeTile extends Tile {
         Scheduler.get().scheduleDeferred(this::rearrangeTiles);
 
         panel.onResize();
-    }
-
-    //todo: getting through parent panel?
-    private Element getContainerElement() {
-        return getElement().getParentElement();
     }
 
     private void rearrangeTiles() {
@@ -110,7 +104,7 @@ public class CompositeTile extends Tile {
 
         Container tileContainer = panel.getChildContainer(tile);
 
-        LayoutStrategy.Position tilePosition = layoutStrategy.place(tileContainer);
+        LayoutStrategy.Position tilePosition = layoutStrategy.place(tile, tileContainer);
 
         Style tileStyle = tile.getElement().getStyle();
 
@@ -185,7 +179,6 @@ public class CompositeTile extends Tile {
         layoutStrategy.clear();
 
         for (Tile tile : tileList) {
-            //todo: clearData
             panel.getChildContainer(tile).setLayoutStrategyData(null);
         }
     }
