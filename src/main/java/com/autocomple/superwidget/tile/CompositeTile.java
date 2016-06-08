@@ -1,16 +1,16 @@
 package com.autocomple.superwidget.tile;
 
-import com.autocomple.superwidget.Mosaic;
 import com.autocomple.superwidget.command.*;
+import com.autocomple.superwidget.layout.FlowLayoutStrategy;
+import com.autocomple.superwidget.layout.LayoutStrategy;
+import com.autocomple.superwidget.layout.UnitRuler;
+import com.autocomple.superwidget.util.Container;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -22,19 +22,12 @@ public class CompositeTile extends Tile {
     private static final int DEFAULT_INTERNAL_WIDTH_IN_UNITS = 100;
     private static final int DEFAULT_INTERNAL_HEIGHT_IN_UNITS = 200;
 
-    private int internalWidthInUnits;
-    private int internalHeightInUnits;
+    private UnitRuler unitRuler;
+    private LayoutStrategy layoutStrategy;
 
-    private static final int SCROLLBAR_WIDTH = getScrollBarWidth();
-
-    double unitWidth;
-    double unitHeight;
-
-    private Mosaic mosaic;
     private CompositeTilePanel panel;
 
     private List<Tile> tileList = new ArrayList<>();
-    private HashMap<Tile, Mosaic.Position> tilePositions = new HashMap<>();
 
     public CompositeTile(EventBus commandEventBus) {
         this(DEFAULT_INTERNAL_WIDTH_IN_UNITS, DEFAULT_INTERNAL_HEIGHT_IN_UNITS, commandEventBus);
@@ -47,27 +40,19 @@ public class CompositeTile extends Tile {
     public CompositeTile(int internalWidthInUnits,
                          int internalHeightInUnits,
                          EventBus commandEventBus) {
-        this(new CompositeTilePanel(), internalWidthInUnits, internalHeightInUnits, commandEventBus);
-    }
-
-    private CompositeTile(CompositeTilePanel panel,
-                          int internalWidthInUnits,
-                          int internalHeightInUnits,
-                          EventBus commandEventBus) {
-        super(panel, commandEventBus);
+        super(new CompositeTilePanel(), commandEventBus);
 
         this.panel = (CompositeTilePanel) getWidget();
 
-        this.internalWidthInUnits = internalWidthInUnits;
-        this.internalHeightInUnits = internalHeightInUnits;
+        panel.addAttachHandler((e) -> {
+            this.unitRuler = new UnitRuler(getContainerElement().getParentElement(),
+                    internalWidthInUnits, internalHeightInUnits);
 
-        init();
-    }
+            this.layoutStrategy =
+                    new FlowLayoutStrategy(internalHeightInUnits, internalWidthInUnits, unitRuler);
 
-    private void init() {
-        this.mosaic = new Mosaic(internalHeightInUnits, internalWidthInUnits);
-
-        panel.addAttachHandler((e) -> onResize());
+            onResize();
+        });
     }
 
     @Override
@@ -78,10 +63,7 @@ public class CompositeTile extends Tile {
 
     @Override
     public void onResize() {
-        Element containerParent = getContainerElement().getParentElement();
-
-        unitWidth = (double) getDiscountedDimension(containerParent, false) / internalWidthInUnits;
-        unitHeight = (double) getDiscountedDimension(containerParent, true) / internalHeightInUnits;
+        unitRuler.adjust();
 
         Scheduler.get().scheduleDeferred(this::rearrangeTiles);
 
@@ -94,7 +76,7 @@ public class CompositeTile extends Tile {
     }
 
     private void rearrangeTiles() {
-        mosaic.clear();
+        clearLayout();
 
         for (Tile tile : tileList) {
             renderTile(tile);
@@ -117,12 +99,8 @@ public class CompositeTile extends Tile {
     private void clearTilesFrom(int index) {
         for (int i = index; i < panel.getWidgetCount(); i++) {
             Tile tile = tileList.get(i);
-            if (tilePositions.containsKey(tile)) {
-                boolean isHeight = true;
-                mosaic.removeTile(tile.getMatrix(
-                        getMatrixDimension(tile, isHeight),
-                        getMatrixDimension(tile, !isHeight)), tilePositions.get(tile));
-            }
+
+            layoutStrategy.remove(panel.getChildContainer(tile));
         }
     }
 
@@ -130,28 +108,24 @@ public class CompositeTile extends Tile {
 
         applyContainerStyle(tile);
 
-        boolean isHeight = true;
-        Mosaic.UnitMatrix tileMatrix = tile.getMatrix(
-                getMatrixDimension(tile, isHeight),
-                getMatrixDimension(tile, !isHeight));
+        Container tileContainer = panel.getChildContainer(tile);
 
-        Mosaic.Position tilePosition = mosaic.placeTile(tileMatrix);
+        LayoutStrategy.Position tilePosition = layoutStrategy.place(tileContainer);
+
+        Style tileStyle = tile.getElement().getStyle();
 
         if (tilePosition != null) {
-            tilePositions.put(tile, tilePosition);
 
-            Style tileStyle = tile.getElement().getStyle();
             if (tileStyle.getDisplay().equals(Style.Display.NONE.getCssName())) {
                 tileStyle.clearDisplay();
             }
 
-            panel.setChildLeft(tile, tilePosition.getLeft() * unitWidth, Style.Unit.PX);
+            panel.setChildLeft(tile, tilePosition.getLeft() * unitRuler.getUnitWidth(), Style.Unit.PX);
 
-            panel.setChildTop(tile, tilePosition.getTop() * unitHeight, Style.Unit.PX);
+            panel.setChildTop(tile, tilePosition.getTop() * unitRuler.getUnitHeight(), Style.Unit.PX);
 
         } else {
-            tilePositions.remove(tile);
-            tile.getElement().getStyle().setDisplay(Style.Display.NONE);
+            tileStyle.setDisplay(Style.Display.NONE);
         }
     }
 
@@ -163,47 +137,6 @@ public class CompositeTile extends Tile {
         panel.setChildContainerWidth(child, childContainerStyle.getWidth());
 
         panel.setChildContainerClassName(child, childContainerStyle.getClassName());
-    }
-
-    //todo: this should be with mosaic – should be configurable using a parameter
-    private int getMatrixDimension(Tile tile, boolean vertical) {
-        Element containerElement = getChildContainerElement(tile);
-        int dimension = getDimension(containerElement, vertical);
-        double normalizationParameter = getNormalizationParameter(containerElement.getParentElement(), vertical);
-
-        double unitSize = vertical ? unitHeight : unitWidth;
-
-        return round(dimension * normalizationParameter / unitSize);
-    }
-
-    private Element getChildContainerElement(Tile child) {
-        return panel.getChildContainer(child).getElement();
-    }
-
-    private int getDiscountedDimension(Element element, boolean vertical) {
-        return discount(getDimension(element, vertical));
-    }
-
-    private double getNormalizationParameter(Element element, boolean vertical) {
-        int dimension = getDimension(element, vertical);
-
-        return (double) discount(dimension) / dimension;
-    }
-
-    private int getDimension(Element element, boolean vertical) {
-        return vertical ?
-                element.getOffsetHeight() :
-                element.getOffsetWidth();
-    }
-
-    private int discount(int dimension) {
-        return dimension - SCROLLBAR_WIDTH;
-    }
-
-    // this is more correct for tile placement than simply ceiling,
-    // as we care about at least half a pixel
-    private int round(double value) {
-        return new BigDecimal(value).setScale(0, RoundingMode.HALF_UP).intValue();
     }
 
     protected void addAdditionCommandHandlers() {
@@ -234,11 +167,9 @@ public class CompositeTile extends Tile {
 
         addCommandHandler(ClearCommand.TYPE,
                 (command) -> {
-                    mosaic.clear();
+                    clearLayout();
 
-                    tilePositions.clear();
-
-                    tileList.clear();
+                    clearChildren();
                 });
     }
 
@@ -250,45 +181,20 @@ public class CompositeTile extends Tile {
         rearrangeTiles();
     }
 
-    private static native int getScrollBarWidth() /*-{
-        var scr = null;
-        var inn = null;
-        var wNoScroll = 0;
-        var wScroll = 0;
+    private void clearLayout() {
+        layoutStrategy.clear();
 
-        // Outer scrolling div
-        scr = $wnd.document.createElement('div');
-        scr.style.position = 'absolute';
-        scr.style.top = '-1000px';
-        scr.style.left = '-1000px';
-        scr.style.width = '100px';
-        scr.style.height = '50px';
-        // Start with no scrollbar
-        scr.style.overflow = 'hidden';
+        for (Tile tile : tileList) {
+            //todo: clearData
+            panel.getChildContainer(tile).setLayoutStrategyData(null);
+        }
+    }
 
-        // Inner content div
-        inn = $wnd.document.createElement('div');
-        inn.style.width = '100%';
-        inn.style.height = '200px';
+    private void clearChildren() {
+        tileList.clear();
+    }
 
-        // Put the inner div in the scrolling div
-        scr.appendChild(inn);
-        // Append the scrolling div to the doc
-
-        $wnd.document.body.appendChild(scr);
-
-        // Width of the inner div sans scrollbar
-        wNoScroll = inn.offsetWidth;
-        // Add the scrollbar
-        scr.style.overflow = 'auto';
-        // Width of the inner div width scrollbar
-        wScroll = inn.offsetWidth;
-
-        // Remove the scrolling div from the doc
-        $wnd.document.body.removeChild(
-            $wnd.document.body.lastChild);
-
-        // Pixel width of the scroller
-        return (wNoScroll - wScroll);
-    }-*/;
+    public void setLayoutStrategy(LayoutStrategy layoutStrategy) {
+        this.layoutStrategy = layoutStrategy;
+    }
 }

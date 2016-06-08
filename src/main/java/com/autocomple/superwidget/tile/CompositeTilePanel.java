@@ -1,5 +1,6 @@
 package com.autocomple.superwidget.tile;
 
+import com.autocomple.superwidget.util.Container;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
@@ -63,7 +64,7 @@ public class CompositeTilePanel extends ComplexPanel implements RequiresResize {
         checkIsChild(child);
 
         Scheduler.get().scheduleFinally(() -> {
-            Container childContainer = getChildContainer(child);
+            UIObject childContainer = getChildContainer(child);
 
             Style childContainerStyle = childContainer.getElement().getStyle();
 
@@ -75,7 +76,7 @@ public class CompositeTilePanel extends ComplexPanel implements RequiresResize {
         checkIsChild(child);
 
         Scheduler.get().scheduleFinally(() -> {
-            Container childContainer = getChildContainer(child);
+            UIObject childContainer = getChildContainer(child);
 
             Style childContainerStyle = childContainer.getElement().getStyle();
 
@@ -122,11 +123,5 @@ public class CompositeTilePanel extends ComplexPanel implements RequiresResize {
         child.setLayoutData(container);
 
         return container;
-    }
-
-    static class Container extends UIObject {
-        public Container(Element containerElement) {
-            setElement(containerElement);
-        }
     }
 }

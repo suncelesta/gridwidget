@@ -1,6 +1,5 @@
 package com.autocomple.superwidget.tile;
 
-import com.autocomple.superwidget.Mosaic;
 import com.autocomple.superwidget.command.Command;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
@@ -102,19 +101,5 @@ public abstract class Tile extends Composite implements RequiresResize {
         } else {
             super.fireEvent(event);
         }
-    }
-
-    protected Mosaic.UnitMatrix getMatrix(int height,
-                                          int width) {
-
-        Mosaic.UnitMatrix result = new Mosaic.UnitMatrix(height, width);
-
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                result.setOccupied(i, j, true);
-            }
-        }
-
-        return result;
     }
 }
