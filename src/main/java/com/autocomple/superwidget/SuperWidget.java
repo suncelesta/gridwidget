@@ -4,9 +4,11 @@ import com.autocomple.superwidget.command.*;
 import com.autocomple.superwidget.tile.Tile;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.user.client.ui.ResizeComposite;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.RequiresResize;
+import com.google.gwt.user.client.ui.Widget;
 
-public abstract class SuperWidget extends ResizeComposite {
+public abstract class SuperWidget implements IsWidget, RequiresResize {
     private Tile rootTile;
     private EventBus commandEventBus;
 
@@ -18,7 +20,17 @@ public abstract class SuperWidget extends ResizeComposite {
         this.rootTile = rootTile;
         this.commandEventBus = commandEventBus;
 
-        initWidget(rootTile);
+        //initWidget(rootTile);
+    }
+
+    @Override
+    public void onResize() {
+        rootTile.onResize();
+    }
+
+    @Override
+    public Widget asWidget() {
+        return getRootTile();
     }
 
     protected void appendTile(Tile tile) {

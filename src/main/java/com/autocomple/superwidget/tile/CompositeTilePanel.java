@@ -14,6 +14,7 @@ public class CompositeTilePanel extends ComplexPanel implements RequiresResize {
 
     public CompositeTilePanel() {
         setElement(Document.get().createDivElement());
+        getElement().getStyle().setPosition(Style.Position.RELATIVE);
     }
 
     @Override

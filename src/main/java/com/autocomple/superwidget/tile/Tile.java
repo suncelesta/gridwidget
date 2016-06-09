@@ -9,6 +9,9 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.Widget;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * A tile of the widget mosaic.
  */
@@ -18,7 +21,7 @@ public abstract class Tile extends Composite implements RequiresResize {
 
     private ContainerStyle containerStyle = new ContainerStyle();
 
-    protected HandlerRegistration attachHandler;
+    private Set<HandlerRegistration> commandHandlers = new HashSet<>();
 
     public static class ContainerStyle {
         private String height;
@@ -63,21 +66,26 @@ public abstract class Tile extends Composite implements RequiresResize {
     protected Tile(Widget wrappedWidget, EventBus commandEventBus) {
         initWidget(wrappedWidget);
 
-        this.attachHandler = addAttachHandler((e) -> {
-            String className = getContainerStyle().getClassName();
-            if (className != null) {
-                getElement().getParentElement().addClassName(className);
-            }
-        });
+        setCommandEventBus(commandEventBus);
+    }
 
+    protected abstract void addCommandHandlers();
 
+    public void setCommandEventBus(EventBus commandEventBus) {
         this.commandEventBus = commandEventBus;
+
+        removeAllCommandHandlers();
+
         if (commandEventBus != null) {
             addCommandHandlers();
         }
     }
 
-    protected abstract void addCommandHandlers();
+    private void removeAllCommandHandlers() {
+        for (HandlerRegistration commandHandler : commandHandlers) {
+            commandHandler.removeHandler();
+        }
+    }
 
     /**
      * Adds the handler for a command event. Command events
@@ -93,12 +101,19 @@ public abstract class Tile extends Composite implements RequiresResize {
      */
     protected <H extends Command.Handler> HandlerRegistration addCommandHandler(
             GwtEvent.Type<H> type, final H handler) {
-        return commandEventBus.addHandlerToSource(type, this, handler);
+
+        if (commandEventBus == null) return null;
+
+        HandlerRegistration handlerRegistration = commandEventBus.addHandlerToSource(type, this, handler);
+
+        commandHandlers.add(handlerRegistration);
+
+        return handlerRegistration;
     }
 
     @Override
     public void fireEvent(GwtEvent<?> event) {
-        if (event instanceof Command) {
+        if (event instanceof Command && commandEventBus != null) {
             commandEventBus.fireEventFromSource(event, this);
         } else {
             super.fireEvent(event);

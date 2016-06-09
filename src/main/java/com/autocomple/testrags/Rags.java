@@ -2,6 +2,7 @@ package com.autocomple.testrags;
 
 import com.autocomple.superwidget.SuperWidget;
 import com.autocomple.superwidget.tile.CompositeTile;
+import com.autocomple.superwidget.tile.Tile;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
@@ -16,6 +17,10 @@ public class Rags extends SuperWidget {
 
     public Rags() {
         super(new CompositeTile(new SimpleEventBus()));
+
+        Tile.ContainerStyle containerStyle = getRootTile().getContainerStyle();
+        containerStyle.setWidth(100, Style.Unit.PCT);
+        containerStyle.setHeight(100, Style.Unit.PCT);
 
         Resources.INSTANCE.ragpieceStyle().ensureInjected();
     }
