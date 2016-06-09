@@ -2,7 +2,7 @@ package com.autocomple.superwidget.layout;
 
 import com.google.gwt.dom.client.Element;
 
-public class UnitRuler {
+public class UnitRuler implements Ruler {
 
     private Element referenceElement;
     private int referenceWidthInUnits;
@@ -19,23 +19,28 @@ public class UnitRuler {
         this.referenceHeightInUnits = referenceHeightInUnits;
     }
 
+    @Override
     public void adjust() {
         unitWidth = (double) referenceElement.getOffsetWidth() / referenceWidthInUnits;
         unitHeight = (double) referenceElement.getOffsetHeight() / referenceHeightInUnits;
     }
 
+    @Override
     public double getUnitHeight() {
         return unitHeight;
     }
 
+    @Override
     public double getUnitWidth() {
         return unitWidth;
     }
 
+    @Override
     public int measureHeight(Element element) {
         return getDimensionInUnits(element.getOffsetHeight(), unitHeight);
     }
 
+    @Override
     public int measureWidth(Element element) {
         return getDimensionInUnits(element.getOffsetWidth(), unitWidth);
     }

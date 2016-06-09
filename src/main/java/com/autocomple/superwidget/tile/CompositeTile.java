@@ -33,10 +33,12 @@ public class CompositeTile extends Tile {
     }
 
     protected void onPanelAttach() {
-        this.layoutStrategy =
-                new FlowLayoutStrategy(getParent().getElement());
-
+        initLayoutStrategy();
         onResize();
+    }
+
+    protected void initLayoutStrategy() {
+        setLayoutStrategy(new FlowLayoutStrategy(getParent().getElement()));
     }
 
     @Override
@@ -47,7 +49,7 @@ public class CompositeTile extends Tile {
 
     @Override
     public void onResize() {
-        layoutStrategy.getUnitRuler().adjust();
+        layoutStrategy.getRuler().adjust();
 
         Scheduler.get().scheduleDeferred(this::rearrangeTiles);
 
@@ -100,11 +102,11 @@ public class CompositeTile extends Tile {
             }
 
             panel.setChildLeft(tile,
-                    tilePosition.getLeft() * layoutStrategy.getUnitRuler().getUnitWidth(),
+                    tilePosition.getLeft() * layoutStrategy.getRuler().getUnitWidth(),
                     Style.Unit.PX);
 
             panel.setChildTop(tile,
-                    tilePosition.getTop() * layoutStrategy.getUnitRuler().getUnitHeight(),
+                    tilePosition.getTop() * layoutStrategy.getRuler().getUnitHeight(),
                     Style.Unit.PX);
 
         } else {

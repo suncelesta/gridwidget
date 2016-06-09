@@ -11,20 +11,7 @@ public class FlowLayoutStrategy extends MosaicBasedLayoutStrategy {
     public FlowLayoutStrategy(int heightInUnits,
                               int widthInUnits,
                               Element parentElement) {
-        this(heightInUnits, widthInUnits, new UnitRuler(parentElement, widthInUnits, heightInUnits));
-    }
-
-    public FlowLayoutStrategy(int heightInUnits,
-                              int widthInUnits,
-                              UnitRuler unitRuler) {
-        this(heightInUnits, widthInUnits, new DefaultTileUnitMatrixFactory(unitRuler), unitRuler);
-    }
-
-    public FlowLayoutStrategy(int heightInUnits,
-                              int widthInUnits,
-                              TileUnitMatrixFactory tileUnitMatrixFactory,
-                              UnitRuler unitRuler) {
-        super(heightInUnits, widthInUnits, tileUnitMatrixFactory, unitRuler);
+        super(heightInUnits, widthInUnits, parentElement);
     }
 
     @Override

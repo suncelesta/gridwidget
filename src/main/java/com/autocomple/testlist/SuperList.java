@@ -3,6 +3,7 @@ package com.autocomple.testlist;
 
 import com.autocomple.superwidget.Placeholder;
 import com.autocomple.superwidget.SuperHasValues;
+import com.autocomple.superwidget.layout.StackLayoutStrategy;
 import com.autocomple.superwidget.tile.CellSimpleTile;
 import com.autocomple.superwidget.tile.SimpleTile;
 import com.autocomple.superwidget.tile.Tile;
@@ -61,6 +62,11 @@ public class SuperList<Value> extends SuperHasValues<Value> {
     static class ListTile<Value> extends HasValuesTile<Value> {
         public ListTile(Cell<Value> cell, EventBus commandEventBus) {
             super(cell, commandEventBus);
+        }
+
+        @Override
+        protected void initLayoutStrategy() {
+            setLayoutStrategy(new StackLayoutStrategy());
         }
     }
 

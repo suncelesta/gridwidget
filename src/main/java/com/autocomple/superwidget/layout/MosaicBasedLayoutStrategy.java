@@ -9,15 +9,16 @@ public abstract class MosaicBasedLayoutStrategy implements LayoutStrategy {
     protected static final int DEFAULT_INTERNAL_HEIGHT_IN_UNITS = 200;
 
     private Mosaic mosaic;
+
     private TileUnitMatrixFactory tileUnitMatrixFactory;
-    private UnitRuler unitRuler;
+    private Ruler ruler;
 
     protected MosaicBasedLayoutStrategy(int mosaicHeightInUnits,
                                         int mosaicWidthInUnits,
-                                        TileUnitMatrixFactory tileUnitMatrixFactory,
-                                        UnitRuler unitRuler) {
-        this.tileUnitMatrixFactory = tileUnitMatrixFactory;
-        this.unitRuler = unitRuler;
+                                        Element parentElement) {
+
+        this.ruler = new UnitRuler(parentElement, mosaicWidthInUnits, mosaicHeightInUnits);
+        this.tileUnitMatrixFactory = new DefaultTileUnitMatrixFactory(ruler);
         this.mosaic = new Mosaic(mosaicHeightInUnits, mosaicWidthInUnits);
     }
 
@@ -76,8 +77,13 @@ public abstract class MosaicBasedLayoutStrategy implements LayoutStrategy {
     }
 
     @Override
-    public UnitRuler getUnitRuler() {
-        return unitRuler;
+    public Ruler getRuler() {
+        return ruler;
+    }
+
+
+    public void setTileUnitMatrixFactory(TileUnitMatrixFactory tileUnitMatrixFactory) {
+        this.tileUnitMatrixFactory = tileUnitMatrixFactory;
     }
 
     private static class Area {
@@ -107,10 +113,10 @@ public abstract class MosaicBasedLayoutStrategy implements LayoutStrategy {
     }
 
     protected static class DefaultTileUnitMatrixFactory implements TileUnitMatrixFactory {
-        private UnitRuler unitRuler;
+        private Ruler ruler;
 
-        public DefaultTileUnitMatrixFactory(UnitRuler unitRuler) {
-            this.unitRuler = unitRuler;
+        public DefaultTileUnitMatrixFactory(Ruler ruler) {
+            this.ruler = ruler;
         }
 
         @Override
@@ -120,8 +126,8 @@ public abstract class MosaicBasedLayoutStrategy implements LayoutStrategy {
 
         private Mosaic.UnitMatrix newMatrix(Element element) {
             return newMatrix(
-                    unitRuler.measureHeight(element),
-                    unitRuler.measureWidth(element));
+                    ruler.measureHeight(element),
+                    ruler.measureWidth(element));
         }
 
         private Mosaic.UnitMatrix newMatrix(int height,
