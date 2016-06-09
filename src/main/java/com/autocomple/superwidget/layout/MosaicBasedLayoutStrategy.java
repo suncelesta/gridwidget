@@ -12,29 +12,29 @@ public abstract class MosaicBasedLayoutStrategy implements LayoutStrategy {
     private TileUnitMatrixFactory tileUnitMatrixFactory;
     private UnitRuler unitRuler;
 
-    protected MosaicBasedLayoutStrategy(int heightInUnits,
-                                        int widthInUnits,
+    protected MosaicBasedLayoutStrategy(int mosaicHeightInUnits,
+                                        int mosaicWidthInUnits,
                                         TileUnitMatrixFactory tileUnitMatrixFactory,
                                         UnitRuler unitRuler) {
         this.tileUnitMatrixFactory = tileUnitMatrixFactory;
         this.unitRuler = unitRuler;
-        this.mosaic = new Mosaic(heightInUnits, widthInUnits);
+        this.mosaic = new Mosaic(mosaicHeightInUnits, mosaicWidthInUnits);
     }
 
     @Override
     public Position place(Tile tile, Container tileContainer) {
-        Placeholder tilePlaceholder = getPlaceholder(tileContainer);
+        Area tileArea = getArea(tileContainer);
 
-        Mosaic.UnitMatrix tileMatrix = tilePlaceholder != null ?
-                tilePlaceholder.getMatrix() :
+        Mosaic.UnitMatrix tileMatrix = tileArea != null ?
+                tileArea.getMatrix() :
                 tileUnitMatrixFactory.createUnitMatrix(tile, tileContainer);
 
         Position topLeft = placeMatrix(tileMatrix);
 
-        if (tilePlaceholder != null) {
-            tilePlaceholder.setPosition(topLeft);
+        if (tileArea != null) {
+            tileArea.setPosition(topLeft);
         } else {
-            tileContainer.setLayoutStrategyData(new Placeholder(topLeft, tileMatrix));
+            tileContainer.setLayoutStrategyData(new Area(topLeft, tileMatrix));
         }
 
         return topLeft;
@@ -44,12 +44,12 @@ public abstract class MosaicBasedLayoutStrategy implements LayoutStrategy {
 
     @Override
     public void remove(Container tileContainer) {
-        Placeholder placeholder = getPlaceholder(tileContainer);
+        Area tileArea = getArea(tileContainer);
 
-        if (placeholder != null) {
+        if (tileArea != null) {
 
-            Mosaic.UnitMatrix matrix = placeholder.getMatrix();
-            Position position = placeholder.getPosition();
+            Mosaic.UnitMatrix matrix = tileArea.getMatrix();
+            Position position = tileArea.getPosition();
 
             if (position != null) {
                 mosaic.removeMatrix(matrix, position);
@@ -69,10 +69,10 @@ public abstract class MosaicBasedLayoutStrategy implements LayoutStrategy {
         return mosaic;
     }
 
-    private static Placeholder getPlaceholder(Container container) {
+    private static Area getArea(Container container) {
         Object layoutStrategyData = container.getLayoutStrategyData();
 
-        return layoutStrategyData != null ? (Placeholder)layoutStrategyData : null;
+        return layoutStrategyData != null ? (Area)layoutStrategyData : null;
     }
 
     @Override
@@ -80,11 +80,11 @@ public abstract class MosaicBasedLayoutStrategy implements LayoutStrategy {
         return unitRuler;
     }
 
-    private static class Placeholder {
+    private static class Area {
         private Position position;
         private Mosaic.UnitMatrix matrix;
 
-        private Placeholder(Position position, Mosaic.UnitMatrix matrix) {
+        private Area(Position position, Mosaic.UnitMatrix matrix) {
             this.position = position;
             this.matrix = matrix;
         }

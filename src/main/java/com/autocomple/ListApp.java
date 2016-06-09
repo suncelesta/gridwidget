@@ -1,7 +1,8 @@
 package com.autocomple;
 
-import com.autocomple.superwidget.SuperList;
 import com.autocomple.superwidget.SuperWidgetPanel;
+import com.autocomple.testlist.SuperList;
+import com.autocomple.testlist.TestSuperListDataProvider;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -16,12 +17,21 @@ public class ListApp implements EntryPoint {
      */
     @Override
     public void onModuleLoad() {
-        List<String> values = new ArrayList<>();
+        List<String> values = createValues();
 
-        values.add("one");
-        values.add("two");
-        values.add("three");
+        SuperList<String> list = createAndAddList();
 
+        setValues(values, list);
+    }
+
+    private void setValues(List<String> values, SuperList<String> list) {
+        TestSuperListDataProvider<String> dataProvider = new TestSuperListDataProvider<>();
+        dataProvider.addDisplay(list);
+        dataProvider.updateData(values);
+        //list.setValues(values);
+    }
+
+    private SuperList<String> createAndAddList() {
         SuperList<String> list = new SuperList<>(new TextCell());
 
         SuperWidgetPanel tilePanel = new SuperWidgetPanel();
@@ -31,7 +41,15 @@ public class ListApp implements EntryPoint {
         tilePanel.setWidget(list);
 
         RootPanel.get().add(tilePanel);
+        return list;
+    }
 
-        list.setValues(values);
+    private List<String> createValues() {
+        List<String> values = new ArrayList<>();
+
+        values.add("one");
+        values.add("two");
+        values.add("three");
+        return values;
     }
 }

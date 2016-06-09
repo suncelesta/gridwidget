@@ -72,7 +72,9 @@ public abstract class Tile extends Composite implements RequiresResize {
 
 
         this.commandEventBus = commandEventBus;
-        addCommandHandlers();
+        if (commandEventBus != null) {
+            addCommandHandlers();
+        }
     }
 
     protected abstract void addCommandHandlers();

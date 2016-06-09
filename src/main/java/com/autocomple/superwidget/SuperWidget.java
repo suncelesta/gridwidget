@@ -53,7 +53,7 @@ public abstract class SuperWidget extends ResizeComposite {
         ClearCommand.sendTo(rootTile);
     }
 
-    public Tile getRootTile() {
+    protected Tile getRootTile() {
         return rootTile;
     }
 
