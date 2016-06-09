@@ -1,15 +1,30 @@
 package com.autocomple.superwidget.layout;
 
+import com.google.gwt.dom.client.Element;
+
 public class FlowLayoutStrategy extends MosaicBasedLayoutStrategy {
 
-    public FlowLayoutStrategy(int heightInUnits, int widthInUnits, UnitRuler unitRuler) {
-        this(heightInUnits, widthInUnits, new DefaultTileUnitMatrixFactory(unitRuler));
+    public FlowLayoutStrategy(Element parentElement) {
+        this(DEFAULT_INTERNAL_HEIGHT_IN_UNITS, DEFAULT_INTERNAL_WIDTH_IN_UNITS, parentElement);
     }
 
     public FlowLayoutStrategy(int heightInUnits,
                               int widthInUnits,
-                              TileUnitMatrixFactory tileUnitMatrixFactory) {
-        super(heightInUnits, widthInUnits, tileUnitMatrixFactory);
+                              Element parentElement) {
+        this(heightInUnits, widthInUnits, new UnitRuler(parentElement, widthInUnits, heightInUnits));
+    }
+
+    public FlowLayoutStrategy(int heightInUnits,
+                              int widthInUnits,
+                              UnitRuler unitRuler) {
+        this(heightInUnits, widthInUnits, new DefaultTileUnitMatrixFactory(unitRuler), unitRuler);
+    }
+
+    public FlowLayoutStrategy(int heightInUnits,
+                              int widthInUnits,
+                              TileUnitMatrixFactory tileUnitMatrixFactory,
+                              UnitRuler unitRuler) {
+        super(heightInUnits, widthInUnits, tileUnitMatrixFactory, unitRuler);
     }
 
     @Override

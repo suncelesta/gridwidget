@@ -3,7 +3,6 @@ package com.autocomple.superwidget.tile;
 import com.autocomple.superwidget.command.*;
 import com.autocomple.superwidget.layout.FlowLayoutStrategy;
 import com.autocomple.superwidget.layout.LayoutStrategy;
-import com.autocomple.superwidget.layout.UnitRuler;
 import com.autocomple.superwidget.util.Container;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
@@ -18,10 +17,7 @@ import java.util.List;
  * with height and width of cells (units) changed on resize.
  */
 public class CompositeTile extends Tile {
-    private static final int DEFAULT_INTERNAL_WIDTH_IN_UNITS = 100;
-    private static final int DEFAULT_INTERNAL_HEIGHT_IN_UNITS = 200;
 
-    private UnitRuler unitRuler;
     private LayoutStrategy layoutStrategy;
 
     private CompositeTilePanel panel;
@@ -29,29 +25,18 @@ public class CompositeTile extends Tile {
     private List<Tile> tileList = new ArrayList<>();
 
     public CompositeTile(EventBus commandEventBus) {
-        this(DEFAULT_INTERNAL_WIDTH_IN_UNITS, DEFAULT_INTERNAL_HEIGHT_IN_UNITS, commandEventBus);
-    }
-
-    /**
-     * @param internalWidthInUnits the width of inner mosaic in units
-     * @param internalHeightInUnits the height of inner mosaic in units
-     */
-    public CompositeTile(int internalWidthInUnits,
-                         int internalHeightInUnits,
-                         EventBus commandEventBus) {
         super(new CompositeTilePanel(), commandEventBus);
 
         this.panel = (CompositeTilePanel) getWidget();
 
-        panel.addAttachHandler((e) -> {
-            this.unitRuler = new UnitRuler(getParent().getElement(),
-                    internalWidthInUnits, internalHeightInUnits);
+        panel.addAttachHandler((e) -> onPanelAttach());
+    }
 
-            this.layoutStrategy =
-                    new FlowLayoutStrategy(internalHeightInUnits, internalWidthInUnits, unitRuler);
+    protected void onPanelAttach() {
+        this.layoutStrategy =
+                new FlowLayoutStrategy(getParent().getElement());
 
-            onResize();
-        });
+        onResize();
     }
 
     @Override
@@ -62,7 +47,7 @@ public class CompositeTile extends Tile {
 
     @Override
     public void onResize() {
-        unitRuler.adjust();
+        layoutStrategy.getUnitRuler().adjust();
 
         Scheduler.get().scheduleDeferred(this::rearrangeTiles);
 
@@ -114,9 +99,13 @@ public class CompositeTile extends Tile {
                 tileStyle.clearDisplay();
             }
 
-            panel.setChildLeft(tile, tilePosition.getLeft() * unitRuler.getUnitWidth(), Style.Unit.PX);
+            panel.setChildLeft(tile,
+                    tilePosition.getLeft() * layoutStrategy.getUnitRuler().getUnitWidth(),
+                    Style.Unit.PX);
 
-            panel.setChildTop(tile, tilePosition.getTop() * unitRuler.getUnitHeight(), Style.Unit.PX);
+            panel.setChildTop(tile,
+                    tilePosition.getTop() * layoutStrategy.getUnitRuler().getUnitHeight(),
+                    Style.Unit.PX);
 
         } else {
             tileStyle.setDisplay(Style.Display.NONE);

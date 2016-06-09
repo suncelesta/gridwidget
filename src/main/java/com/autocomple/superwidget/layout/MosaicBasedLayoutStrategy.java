@@ -5,13 +5,19 @@ import com.autocomple.superwidget.util.Container;
 import com.google.gwt.dom.client.Element;
 
 public abstract class MosaicBasedLayoutStrategy implements LayoutStrategy {
+    protected static final int DEFAULT_INTERNAL_WIDTH_IN_UNITS = 100;
+    protected static final int DEFAULT_INTERNAL_HEIGHT_IN_UNITS = 200;
+
     private Mosaic mosaic;
     private TileUnitMatrixFactory tileUnitMatrixFactory;
+    private UnitRuler unitRuler;
 
     protected MosaicBasedLayoutStrategy(int heightInUnits,
-                                     int widthInUnits,
-                                     TileUnitMatrixFactory tileUnitMatrixFactory) {
+                                        int widthInUnits,
+                                        TileUnitMatrixFactory tileUnitMatrixFactory,
+                                        UnitRuler unitRuler) {
         this.tileUnitMatrixFactory = tileUnitMatrixFactory;
+        this.unitRuler = unitRuler;
         this.mosaic = new Mosaic(heightInUnits, widthInUnits);
     }
 
@@ -67,6 +73,11 @@ public abstract class MosaicBasedLayoutStrategy implements LayoutStrategy {
         Object layoutStrategyData = container.getLayoutStrategyData();
 
         return layoutStrategyData != null ? (Placeholder)layoutStrategyData : null;
+    }
+
+    @Override
+    public UnitRuler getUnitRuler() {
+        return unitRuler;
     }
 
     private static class Placeholder {

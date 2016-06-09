@@ -11,6 +11,8 @@ public interface LayoutStrategy {
 
     void clear();
 
+    UnitRuler getUnitRuler();
+
     class Position {
         private int top;
         private int left;
