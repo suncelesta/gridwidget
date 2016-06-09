@@ -17,7 +17,7 @@ public abstract class MosaicBasedLayoutStrategy implements LayoutStrategy {
                                         int mosaicWidthInUnits,
                                         Element parentElement) {
 
-        this.ruler = new UnitRuler(parentElement, mosaicWidthInUnits, mosaicHeightInUnits);
+        this.ruler = new MosaicUnitRuler(parentElement, mosaicWidthInUnits, mosaicHeightInUnits);
         this.tileUnitMatrixFactory = new DefaultTileUnitMatrixFactory(ruler);
         this.mosaic = new Mosaic(mosaicHeightInUnits, mosaicWidthInUnits);
     }

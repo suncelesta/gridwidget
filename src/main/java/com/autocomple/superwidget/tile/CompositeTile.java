@@ -102,11 +102,11 @@ public class CompositeTile extends Tile {
             }
 
             panel.setChildLeft(tile,
-                    tilePosition.getLeft() * layoutStrategy.getRuler().getUnitWidth(),
+                    tilePosition.getLeftInPixels(layoutStrategy.getRuler()),
                     Style.Unit.PX);
 
             panel.setChildTop(tile,
-                    tilePosition.getTop() * layoutStrategy.getRuler().getUnitHeight(),
+                    tilePosition.getTopInPixels(layoutStrategy.getRuler()),
                     Style.Unit.PX);
 
         } else {

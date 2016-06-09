@@ -2,7 +2,7 @@ package com.autocomple.superwidget.layout;
 
 import com.google.gwt.dom.client.Element;
 
-public class UnitRuler implements Ruler {
+public class MosaicUnitRuler implements Ruler {
 
     private Element referenceElement;
     private int referenceWidthInUnits;
@@ -11,9 +11,9 @@ public class UnitRuler implements Ruler {
     private double unitHeight;
     private double unitWidth;
 
-    public UnitRuler(Element referenceElement,
-                     int referenceWidthInUnits,
-                     int referenceHeightInUnits) {
+    public MosaicUnitRuler(Element referenceElement,
+                           int referenceWidthInUnits,
+                           int referenceHeightInUnits) {
         this.referenceElement = referenceElement;
         this.referenceWidthInUnits = referenceWidthInUnits;
         this.referenceHeightInUnits = referenceHeightInUnits;
